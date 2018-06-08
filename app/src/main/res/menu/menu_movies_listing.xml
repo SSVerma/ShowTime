@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.ssverma.showtime.ui.MoviesListingActivity">
+    <item
+        android:id="@+id/action_sort"
+        android:orderInCategory="100"
+        android:title="@string/sort_label"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_sort"/>
+</menu>

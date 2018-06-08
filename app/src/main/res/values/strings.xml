@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">ShowTime</string>
+    <string name="sort_label">Sort</string>
+    <string name="movie_poster">Movie poster</string>
+    <string name="loading">Loading…</string>
+    <string name="check_icon">Check icon</string>
+    <string name="error_message">Something went wrong :(</string>
+    <string name="retry_label">Retry</string>
+    <string name="sort_by">Sort by</string>
+    <string name="title_activity_movie_details">MovieDetailsActivity</string>
+    <string name="backdrop_image">Backdrop image</string>
+    <string name="synopsis_label">Plot synopsis</string>
+    <string name="transition_poster">transition_poster</string>
+    <string name="empty_text"></string>
+    <string name="logo_icon">Logo icon</string>
+</resources>
