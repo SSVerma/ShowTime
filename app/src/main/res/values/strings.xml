@@ -13,4 +13,8 @@
     <string name="transition_poster">transition_poster</string>
     <string name="empty_text"></string>
     <string name="logo_icon">Logo icon</string>
+    <string name="label_videos">Videos</string>
+    <string name="label_reviews">Reviews</string>
+    <string name="label_view_all">View all</string>
+    <string name="reviews_toolbar_title">Reviews</string>
 </resources>

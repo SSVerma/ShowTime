@@ -108,31 +108,16 @@
             app:layout_constraintTop_toBottomOf="@+id/tv_release_date"
             tools:text="9.1 / 10" />
 
-        <!--Synopsis label-->
-        <TextView
-            android:id="@+id/tv_synopsis_label"
-            android:layout_width="wrap_content"
+        <!--Synopsis section title-->
+        <include
+            android:id="@+id/ll_synopsis_section_title_holder"
+            style="@style/DetailsSectionTitleStyle"
+            layout="@layout/movie_details_section_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/details_content_spacing_left"
-            android:layout_marginStart="@dimen/details_content_spacing_left"
-            android:layout_marginTop="16dp"
-            android:alpha="0.87"
-            android:text="@string/synopsis_label"
-            android:textColor="@android:color/black"
-            android:textSize="19sp"
-            android:textStyle="bold"
             app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/iv_poster" />
-
-        <!--Label bottom bar style-->
-        <View
-            android:id="@+id/view_label_bar"
-            android:layout_width="40dp"
-            android:layout_height="2dp"
-            android:layout_marginTop="4dp"
-            android:background="@color/colorAccent"
-            app:layout_constraintLeft_toLeftOf="@id/tv_synopsis_label"
-            app:layout_constraintTop_toBottomOf="@+id/tv_synopsis_label" />
 
         <!--Synopsis-->
         <TextView
@@ -150,8 +135,50 @@
             android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view_label_bar"
+            app:layout_constraintTop_toBottomOf="@+id/ll_synopsis_section_title_holder"
             tools:text="This is dummy synopsis" />
+
+        <!--Videos section title-->
+        <include
+            android:id="@+id/ll_videos_section_title_holder"
+            style="@style/DetailsSectionTitleStyle"
+            layout="@layout/movie_details_section_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_synopsis" />
+
+        <!--Video list-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_videos"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ll_videos_section_title_holder" />
+
+        <!--Reviews section title-->
+        <include
+            android:id="@+id/ll_reviews_section_title_holder"
+            style="@style/DetailsSectionTitleStyle"
+            layout="@layout/movie_details_section_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rv_videos" />
+
+        <!--Reviews list-->
+        <include
+            android:id="@+id/cv_reviews"
+            layout="@layout/movie_details_reviews"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/content_spacing"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ll_reviews_section_title_holder" />
 
     </android.support.constraint.ConstraintLayout>
 
