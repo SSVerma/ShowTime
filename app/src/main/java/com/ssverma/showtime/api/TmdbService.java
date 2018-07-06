@@ -17,6 +17,9 @@ public interface TmdbService {
     @GET("movie/top_rated?api_key=" + BuildConfig.TmdbApiKey)
     Call<MovieResponse> getTopRatedMovies(@Query("page") int pageNumber);
 
+    @GET("movie/{filter}?api_key=" + BuildConfig.TmdbApiKey)
+    Call<MovieResponse> getMovies(@Path("filter") String filter, @Query("page") int pageNumber);
+
     @GET("movie/{movie_id}/videos?api_key=" + BuildConfig.TmdbApiKey)
     Call<VideosResponse> getVideos(@Path("movie_id") int movieId);
 

@@ -1,4 +1,4 @@
-package com.ssverma.showtime.pagination;
+package com.ssverma.showtime.data;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.PageKeyedDataSource;
@@ -11,6 +11,7 @@ import com.ssverma.showtime.model.Review;
 import com.ssverma.showtime.model.ReviewsResponse;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -21,7 +22,7 @@ public class ReviewDataSource extends PageKeyedDataSource<Integer, Review> {
     private final MutableLiveData<LoadingState> loadingStates;
     private final int movieId;
 
-    public ReviewDataSource(int movieId) {
+    ReviewDataSource(int movieId) {
         this.movieId = movieId;
         tmdbService = ApiUtils.getTmdbService();
         loadingStates = new MutableLiveData<>();
@@ -35,13 +36,19 @@ public class ReviewDataSource extends PageKeyedDataSource<Integer, Review> {
 
         try {
             Response<ReviewsResponse> response = request.execute();
+            loadingStates.postValue(LoadingState.LOADED);
 
             if (response == null) {
-                callback.onResult(null, null, 2);
-            } else {
-                callback.onResult(response.body().getReviews(), 1, 2);
+                callback.onResult(Collections.<Review>emptyList(), null, 2);
+                return;
             }
-            loadingStates.postValue(LoadingState.LOADED);
+
+            if (response.body() == null) {
+                callback.onResult(Collections.<Review>emptyList(), null, 2);
+                return;
+            }
+
+            callback.onResult(response.body().getReviews(), 1, 2);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,18 +66,23 @@ public class ReviewDataSource extends PageKeyedDataSource<Integer, Review> {
     public void loadAfter(@NonNull LoadParams<Integer> params, @NonNull LoadCallback<Integer, Review> callback) {
         loadingStates.postValue(LoadingState.LOADING);
 
-        Call<ReviewsResponse> request = tmdbService.getReviews(movieId, params.key);
+        Call<ReviewsResponse> request = tmdbService.getReviews(movieId, params.key + 1);
 
         try {
             Response<ReviewsResponse> response = request.execute();
+            loadingStates.postValue(LoadingState.LOADED);
 
             if (response == null) {
-                callback.onResult(null, params.key + 1);
-            } else {
-                callback.onResult(response.body().getReviews(), params.key + 1);
+                callback.onResult(Collections.<Review>emptyList(), params.key + 1);
+                return;
             }
 
-            loadingStates.postValue(LoadingState.LOADED);
+            if (response.body() == null) {
+                callback.onResult(Collections.<Review>emptyList(), params.key + 1);
+                return;
+            }
+
+            callback.onResult(response.body().getReviews(), params.key + 1);
 
         } catch (IOException e) {
             e.printStackTrace();

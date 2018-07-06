@@ -1,8 +1,12 @@
 package com.ssverma.showtime.ui;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
+import android.arch.paging.PagedList;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -16,28 +20,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.ssverma.showtime.BuildConfig;
 import com.ssverma.showtime.R;
-import com.ssverma.showtime.api.ApiUtils;
 import com.ssverma.showtime.data.SharedPrefHelper;
 import com.ssverma.showtime.model.Movie;
-import com.ssverma.showtime.model.MovieResponse;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class MoviesListingActivity extends AppCompatActivity {
 
-    private List<Movie> listMovies;
-    private MoviesAdapter moviesAdapter;
-    private int totalPages;
-    private int currentPage = 1;
     private int selectedSortIndex;
+    private MoviesViewModel viewModel;
 
     public static void launch(Context context) {
         context.startActivity(new Intent(context, MoviesListingActivity.class));
@@ -47,78 +40,17 @@ public class MoviesListingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movies_listing);
+        initViewModel();
         setUpToolbar();
         setUpContents();
-        makeMoviesApiRequest();
     }
 
-    private void makeMoviesApiRequest() {
-        moviesAdapter.setLoading(true);
-
-        if (currentPage == 1) {
-            toggleProgressbarVisibility(true);
-            toggleMainRetryAction(false);
-        }
-
-        Call<MovieResponse> apiCall;
-
-        switch (selectedSortIndex) {
-            default:
-            case 0:
-                apiCall = ApiUtils.getTmdbService().getPopularMovies(currentPage);
-                break;
-            case 1:
-                apiCall = ApiUtils.getTmdbService().getTopRatedMovies(currentPage);
-                break;
-        }
-
-        apiCall.enqueue(new Callback<MovieResponse>() {
-            @Override
-            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
-                handleResponse(response);
-            }
-
-            @Override
-            public void onFailure(Call<MovieResponse> call, Throwable t) {
-                t.printStackTrace();
-                toggleProgressbarVisibility(false);
-                toggleMainRetryAction(currentPage == 1);
-            }
-        });
-
+    private void initViewModel() {
+        viewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
     }
 
     private void toggleProgressbarVisibility(boolean shouldShow) {
         findViewById(R.id.progress_bar).setVisibility(shouldShow ? View.VISIBLE : View.GONE);
-    }
-
-    private void handleResponse(Response<MovieResponse> response) {
-
-        if (currentPage == 1) {
-            toggleProgressbarVisibility(false);
-        }
-
-        if (response.body() == null) {
-            toggleMainRetryAction(currentPage == 1);
-            return;
-        }
-
-        if (currentPage == 1) {
-            this.totalPages = response.body().getTotalPages();
-        }
-
-        List<Movie> movies = response.body().getMoviesList();
-
-        if (!listMovies.isEmpty()) {
-            int progressbarIndex = listMovies.size() - 1;
-            listMovies.remove(progressbarIndex);
-            moviesAdapter.notifyItemRemoved(progressbarIndex);
-        }
-
-        int prevSize = listMovies.size();
-        listMovies.addAll(movies);
-        moviesAdapter.notifyItemRangeInserted(prevSize, listMovies.size());
-        moviesAdapter.setLoading(false);
     }
 
     private void toggleMainRetryAction(boolean shouldShow) {
@@ -135,55 +67,39 @@ public class MoviesListingActivity extends AppCompatActivity {
         btnRetry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                makeMoviesApiRequest();
+                //
             }
         });
     }
 
     private void setUpContents() {
 
-        listMovies = new ArrayList<>();
         selectedSortIndex = SharedPrefHelper.getSortSelectedIndex(this);
 
         final RecyclerView rvMovies = findViewById(R.id.rv_movies);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         rvMovies.setLayoutManager(gridLayoutManager);
 
-        moviesAdapter = new MoviesAdapter(rvMovies, listMovies, new ILoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                if (currentPage >= totalPages) {
-                    return;
-                }
-
-                currentPage++;
-
-                listMovies.add(null);//For loading indicator
-                rvMovies.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        moviesAdapter.notifyItemInserted(listMovies.size() - 1);
-                    }
-                });
-
-                makeMoviesApiRequest();
-            }
-        });
-
+        final MoviesListingAdapter moviesAdapter = new MoviesListingAdapter();
         rvMovies.setAdapter(moviesAdapter);
 
-        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+        viewModel.updateFilter("popular");
+
+        toggleMainRetryAction(false);
+
+        viewModel.getMovies().observe(this, new Observer<PagedList<Movie>>() {
             @Override
-            public int getSpanSize(int position) {
-                return moviesAdapter.getItemViewType(position)
-                        == MoviesAdapter.VIEW_TYPE_LOADING ? 2 : 1;
+            public void onChanged(@Nullable PagedList<Movie> movies) {
+                moviesAdapter.submitList(movies);
+                toggleProgressbarVisibility(false);
             }
         });
 
         moviesAdapter.setRecyclerViewItemClickListener(new IRecyclerViewItemClickListener() {
             @Override
             public void onItemClick(View clickedView, int position) {
-                MovieDetailsActivity.launch(MoviesListingActivity.this, listMovies.get(position), clickedView);
+                MovieDetailsActivity.launch(MoviesListingActivity.this,
+                        moviesAdapter.getCurrentList().get(position), clickedView);
             }
         });
 
@@ -215,13 +131,8 @@ public class MoviesListingActivity extends AppCompatActivity {
                     return;
                 }
 
-                currentPage = 1;
-                MoviesListingActivity.this.listMovies.clear();
-                moviesAdapter.notifyDataSetChanged();
-
                 selectedSortIndex = position;
                 SharedPrefHelper.saveSortSelectedIndex(MoviesListingActivity.this, position);
-                makeMoviesApiRequest();
                 dialog.dismiss();
             }
         });

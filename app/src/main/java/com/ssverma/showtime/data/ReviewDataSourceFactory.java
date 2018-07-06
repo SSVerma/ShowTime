@@ -1,4 +1,4 @@
-package com.ssverma.showtime.pagination;
+package com.ssverma.showtime.data;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.DataSource;
@@ -10,7 +10,7 @@ public class ReviewDataSourceFactory extends DataSource.Factory<Integer, Review>
     private final int movieId;
     private MutableLiveData<ReviewDataSource> dataSourceLiveData = new MutableLiveData<>();
 
-    public ReviewDataSourceFactory(int movieId) {
+    ReviewDataSourceFactory(int movieId) {
         this.movieId = movieId;
     }
 

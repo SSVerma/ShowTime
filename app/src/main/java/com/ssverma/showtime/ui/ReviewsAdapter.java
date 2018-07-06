@@ -83,9 +83,11 @@ public class ReviewsAdapter extends PagedListAdapter<Review, ReviewsAdapter.View
             if (isExpanded) {
                 tvReview.setMaxLines(3);
                 tvReview.setEllipsize(TextUtils.TruncateAt.END);
+                itemView.setBackgroundColor(itemView.getContext().getResources().getColor(android.R.color.white));
             } else {
-                tvReview.setMaxLines(100);
+                tvReview.setMaxLines(200);
                 tvReview.setEllipsize(null);
+                itemView.setBackgroundColor(itemView.getContext().getResources().getColor(R.color.colorSelectedReview));
             }
             isExpanded = !isExpanded;
         }

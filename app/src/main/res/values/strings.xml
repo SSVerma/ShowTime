@@ -17,4 +17,6 @@
     <string name="label_reviews">Reviews</string>
     <string name="label_view_all">View all</string>
     <string name="reviews_toolbar_title">Reviews</string>
+    <string name="add_to_favorite">Add to favorite</string>
+    <string name="favorite">Favorite</string>
 </resources>

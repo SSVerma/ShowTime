@@ -52,7 +52,7 @@ public class ReviewsActivity extends AppCompatActivity {
 
         int movieId = getIntent().getIntExtra(EXTRA_MOVIE_ID, 0);
 
-        viewModel.setMovieId(movieId);
+        viewModel.updateMovieId(movieId);
         viewModel.getReviews().observe(this, new Observer<PagedList<Review>>() {
             boolean isFirstTime = true;
 

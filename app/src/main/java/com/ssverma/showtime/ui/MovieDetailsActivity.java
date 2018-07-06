@@ -40,6 +40,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private static final String BASE_BACKDROP_PATH = "http://image.tmdb.org/t/p/w500";
     private MoviesViewModel viewModel;
     private List<Video> listVideos;
+    private TextView tvAddToFavorite;
 
     public static void launch(Activity activity, Movie movie, View clickedView) {
         Intent intent = new Intent(activity, MovieDetailsActivity.class);
@@ -53,11 +54,51 @@ public class MovieDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
+        initViews();
         initViewModel();
         setUpToolbar();
         setUpContents();
+        setUpFavoriteToggle();
         setUpVideosSection();
         setUpReviewsSection();
+    }
+
+    private void setUpFavoriteToggle() {
+        viewModel.isMovieFavorite().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean isFavoriteMovie) {
+                if (isFavoriteMovie == null) {
+                    tvAddToFavorite.setText(getString(R.string.add_to_favorite));
+                    tvAddToFavorite.setBackgroundResource(R.drawable.background_add_to_favorite);
+                    tvAddToFavorite.setTextColor(getResources().getColor(android.R.color.black));
+                    tvAddToFavorite.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_favorite_border, 0);
+                    return;
+                }
+
+                tvAddToFavorite.setText(getString(R.string.favorite));
+                tvAddToFavorite.setBackgroundResource(R.drawable.background_favorite);
+                tvAddToFavorite.setTextColor(getResources().getColor(android.R.color.white));
+                tvAddToFavorite.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_favorite, 0);
+            }
+        });
+
+        final Movie movie = getIntent().getParcelableExtra(EXTRA_MOVIE);
+
+        tvAddToFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (tvAddToFavorite.getText().toString().equals(getString(R.string.add_to_favorite))) {
+                    viewModel.addToFavorite(movie);
+                } else {
+                    viewModel.removeFromFavorite(movie.getId());
+                }
+            }
+        });
+
+    }
+
+    private void initViews() {
+        tvAddToFavorite = findViewById(R.id.tv_add_to_favorite_action);
     }
 
     private void setUpReviewsSection() {
@@ -89,7 +130,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.setMovieId(movie.getId());
+        viewModel.updateMovieId(movie.getId());
         viewModel.getReviews().observe(this, new Observer<PagedList<Review>>() {
             boolean isFirstTime = true;
 
@@ -140,7 +181,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         });
 
         Movie movie = getIntent().getParcelableExtra(EXTRA_MOVIE);
-        viewModel.setMovieId(movie.getId());
+        viewModel.updateMovieId(movie.getId());
 
         viewModel.getVideos().observe(this, new Observer<Resource<VideosResponse>>() {
             @Override
@@ -212,6 +253,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         /*Synopsis*/
         TextView tvSynopsis = findViewById(R.id.tv_synopsis);
         tvSynopsis.setText(movie.getPlotSynopsis());
+
     }
 
     private void setUpToolbar() {
