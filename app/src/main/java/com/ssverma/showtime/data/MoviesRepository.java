@@ -12,7 +12,6 @@ import android.support.annotation.NonNull;
 
 import com.ssverma.showtime.api.ApiUtils;
 import com.ssverma.showtime.api.TmdbService;
-import com.ssverma.showtime.common.LoadingState;
 import com.ssverma.showtime.common.Resource;
 import com.ssverma.showtime.data.db.MovieDao;
 import com.ssverma.showtime.data.db.MovieDatabase;
@@ -28,9 +27,7 @@ public class MoviesRepository {
     private static final int PAGE_SIZE = 10;
     private final TmdbService tmdbService;
     private ReviewDataSourceFactory reviewDataSourceFactory;
-    private MovieDataSourceFactory movieDataSourceFactory;
     private LiveData<PagedList<Review>> reviews;
-    private LiveData<PagedList<Movie>> movies;
     private MovieDao movieDao;
 
     public MoviesRepository(Application application) {
@@ -39,41 +36,34 @@ public class MoviesRepository {
         tmdbService = ApiUtils.getTmdbService();
     }
 
-    public LiveData<PagedList<Movie>> getMovies(String filter) {
-        if (movies != null) {
-            return movies;
-        }
+    public Listing<Movie> getMovies(String filter) {
 
-        movieDataSourceFactory = new MovieDataSourceFactory(filter);
+        MovieDataSourceFactory movieDataSourceFactory = new MovieDataSourceFactory(filter);
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setPageSize(PAGE_SIZE)
                 .setEnablePlaceholders(true)
                 .build();
 
-        movies = new LivePagedListBuilder<>(movieDataSourceFactory, config)
+        LiveData<PagedList<Movie>> movies = new LivePagedListBuilder<>(movieDataSourceFactory, config)
                 .setInitialLoadKey(1)
                 .build();
 
-        return movies;
-    }
-
-    public LiveData<LoadingState> getMoviesLoadingStates() {
-        return Transformations.switchMap(movieDataSourceFactory.getDataSource(), new Function<MovieDataSource, LiveData<LoadingState>>() {
-            @Override
-            public LiveData<LoadingState> apply(MovieDataSource movieDataSource) {
-                return movieDataSource.getLoadingStates();
-            }
-        });
-    }
-
-    public LiveData<LoadingState> getMoviesInitialLoadingState() {
-        return Transformations.switchMap(movieDataSourceFactory.getDataSource(), new Function<MovieDataSource, LiveData<LoadingState>>() {
-            @Override
-            public LiveData<LoadingState> apply(MovieDataSource movieDataSource) {
-                return movieDataSource.getInitialLoadingStates();
-            }
-        });
+        return new Listing<>(
+                movies,
+                Transformations.switchMap(movieDataSourceFactory.getDataSource(), new Function<MovieDataSource, LiveData<NetworkState>>() {
+                    @Override
+                    public LiveData<NetworkState> apply(MovieDataSource input) {
+                        return input.getNetworkState();
+                    }
+                }),
+                Transformations.switchMap(movieDataSourceFactory.getDataSource(), new Function<MovieDataSource, LiveData<NetworkState>>() {
+                    @Override
+                    public LiveData<NetworkState> apply(MovieDataSource input) {
+                        return input.getInitialLoadingStates();
+                    }
+                })
+        );
     }
 
     public LiveData<PagedList<Review>> getReviews(Integer movieId) {
@@ -95,11 +85,11 @@ public class MoviesRepository {
         return reviews;
     }
 
-    public LiveData<LoadingState> getReviewsLoadingState() {
-        return Transformations.switchMap(reviewDataSourceFactory.getDataSourceLiveData(), new Function<ReviewDataSource, LiveData<LoadingState>>() {
+    public LiveData<NetworkState> getReviewsLoadingState() {
+        return Transformations.switchMap(reviewDataSourceFactory.getDataSourceLiveData(), new Function<ReviewDataSource, LiveData<NetworkState>>() {
             @Override
-            public LiveData<LoadingState> apply(ReviewDataSource reviewDataSource) {
-                return reviewDataSource.getLoadingStates();
+            public LiveData<NetworkState> apply(ReviewDataSource reviewDataSource) {
+                return reviewDataSource.getNetworkState();
             }
         });
     }

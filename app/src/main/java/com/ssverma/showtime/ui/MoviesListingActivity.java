@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.ssverma.showtime.R;
+import com.ssverma.showtime.data.NetworkState;
 import com.ssverma.showtime.data.SharedPrefHelper;
 import com.ssverma.showtime.model.Movie;
 
@@ -83,6 +84,24 @@ public class MoviesListingActivity extends AppCompatActivity {
         final MoviesListingAdapter moviesAdapter = new MoviesListingAdapter();
         rvMovies.setAdapter(moviesAdapter);
 
+        moviesAdapter.setRecyclerViewItemClickListener(new IRecyclerViewItemClickListener() {
+            @Override
+            public void onItemClick(View clickedView, int position) {
+                MovieDetailsActivity.launch(MoviesListingActivity.this,
+                        moviesAdapter.getCurrentList().get(position), clickedView);
+            }
+        });
+
+        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (moviesAdapter.getItemViewType(position) == MoviesListingAdapter.VIEW_TYPE_LOADING) {
+                    return 2;
+                }
+                return 1;
+            }
+        });
+
         viewModel.updateFilter("popular");
 
         toggleMainRetryAction(false);
@@ -91,15 +110,35 @@ public class MoviesListingActivity extends AppCompatActivity {
             @Override
             public void onChanged(@Nullable PagedList<Movie> movies) {
                 moviesAdapter.submitList(movies);
-                toggleProgressbarVisibility(false);
             }
         });
 
-        moviesAdapter.setRecyclerViewItemClickListener(new IRecyclerViewItemClickListener() {
+        viewModel.getInitialLoadState().observe(this, new Observer<NetworkState>() {
             @Override
-            public void onItemClick(View clickedView, int position) {
-                MovieDetailsActivity.launch(MoviesListingActivity.this,
-                        moviesAdapter.getCurrentList().get(position), clickedView);
+            public void onChanged(@Nullable NetworkState networkState) {
+                if (networkState == null || networkState.getStatus() == null) {
+                    toggleProgressbarVisibility(false);
+                    toggleMainRetryAction(true);
+                    return;
+                }
+
+                if (networkState.getStatus() == NetworkState.Status.SUCCESS) {
+                    toggleProgressbarVisibility(false);
+                    return;
+                }
+
+                if (networkState.getStatus() == NetworkState.Status.FAILED) {
+                    toggleProgressbarVisibility(false);
+                    toggleMainRetryAction(true);
+                }
+
+            }
+        });
+
+        viewModel.getNetworkState().observe(this, new Observer<NetworkState>() {
+            @Override
+            public void onChanged(@Nullable NetworkState networkState) {
+                moviesAdapter.setNetworkState(networkState);
             }
         });
 

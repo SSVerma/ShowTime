@@ -1,12 +1,12 @@
 package com.ssverma.showtime.data;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.PageKeyedDataSource;
 import android.support.annotation.NonNull;
 
 import com.ssverma.showtime.api.ApiUtils;
 import com.ssverma.showtime.api.TmdbService;
-import com.ssverma.showtime.common.LoadingState;
 import com.ssverma.showtime.model.Review;
 import com.ssverma.showtime.model.ReviewsResponse;
 
@@ -19,24 +19,24 @@ import retrofit2.Response;
 public class ReviewDataSource extends PageKeyedDataSource<Integer, Review> {
 
     private final TmdbService tmdbService;
-    private final MutableLiveData<LoadingState> loadingStates;
+    private final MutableLiveData<NetworkState> networkState;
     private final int movieId;
 
     ReviewDataSource(int movieId) {
         this.movieId = movieId;
         tmdbService = ApiUtils.getTmdbService();
-        loadingStates = new MutableLiveData<>();
+        networkState = new MutableLiveData<>();
     }
 
     @Override
     public void loadInitial(@NonNull LoadInitialParams<Integer> params, @NonNull LoadInitialCallback<Integer, Review> callback) {
-        loadingStates.postValue(LoadingState.LOADING);
+        networkState.postValue(NetworkState.LOADING);
 
         Call<ReviewsResponse> request = tmdbService.getReviews(movieId, 1);
 
         try {
             Response<ReviewsResponse> response = request.execute();
-            loadingStates.postValue(LoadingState.LOADED);
+            networkState.postValue(NetworkState.LOADED);
 
             if (response == null) {
                 callback.onResult(Collections.<Review>emptyList(), null, 2);
@@ -52,7 +52,7 @@ public class ReviewDataSource extends PageKeyedDataSource<Integer, Review> {
 
         } catch (IOException e) {
             e.printStackTrace();
-            loadingStates.postValue(LoadingState.FAILED);
+            networkState.postValue(NetworkState.error(e.getMessage()));
         }
 
     }
@@ -64,13 +64,13 @@ public class ReviewDataSource extends PageKeyedDataSource<Integer, Review> {
 
     @Override
     public void loadAfter(@NonNull LoadParams<Integer> params, @NonNull LoadCallback<Integer, Review> callback) {
-        loadingStates.postValue(LoadingState.LOADING);
+        networkState.postValue(NetworkState.LOADING);
 
         Call<ReviewsResponse> request = tmdbService.getReviews(movieId, params.key + 1);
 
         try {
             Response<ReviewsResponse> response = request.execute();
-            loadingStates.postValue(LoadingState.LOADED);
+            networkState.postValue(NetworkState.LOADED);
 
             if (response == null) {
                 callback.onResult(Collections.<Review>emptyList(), params.key + 1);
@@ -86,12 +86,12 @@ public class ReviewDataSource extends PageKeyedDataSource<Integer, Review> {
 
         } catch (IOException e) {
             e.printStackTrace();
-            loadingStates.postValue(LoadingState.FAILED);
+            networkState.postValue(NetworkState.error(e.getMessage()));
         }
 
     }
 
-    public MutableLiveData<LoadingState> getLoadingStates() {
-        return loadingStates;
+    public LiveData<NetworkState> getNetworkState() {
+        return networkState;
     }
 }

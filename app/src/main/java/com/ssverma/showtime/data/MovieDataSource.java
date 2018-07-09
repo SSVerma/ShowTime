@@ -1,12 +1,12 @@
 package com.ssverma.showtime.data;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.PageKeyedDataSource;
 import android.support.annotation.NonNull;
 
 import com.ssverma.showtime.api.ApiUtils;
 import com.ssverma.showtime.api.TmdbService;
-import com.ssverma.showtime.common.LoadingState;
 import com.ssverma.showtime.model.Movie;
 import com.ssverma.showtime.model.MovieResponse;
 
@@ -19,28 +19,29 @@ import retrofit2.Response;
 public class MovieDataSource extends PageKeyedDataSource<Integer, Movie> {
 
     private final TmdbService tmdbService;
-    private final MutableLiveData<LoadingState> loadingStates;
-    private final MutableLiveData<LoadingState> initialLoadingStates;
+    private final MutableLiveData<NetworkState> networkState;
+    private final MutableLiveData<NetworkState> initialLoadingState;
     private final String filter;
 
     public MovieDataSource(String filter) {
         this.filter = filter;
         this.tmdbService = ApiUtils.getTmdbService();
-        this.loadingStates = new MutableLiveData<>();
-        initialLoadingStates = new MutableLiveData<>();
+        this.networkState = new MutableLiveData<>();
+        this.initialLoadingState = new MutableLiveData<>();
     }
 
     @Override
     public void loadInitial(@NonNull LoadInitialParams<Integer> params, @NonNull LoadInitialCallback<Integer, Movie> callback) {
-        loadingStates.postValue(LoadingState.LOADING);
-        initialLoadingStates.postValue(LoadingState.LOADING);
+        networkState.postValue(NetworkState.LOADING);
+        initialLoadingState.postValue(NetworkState.LOADING);
 
         Call<MovieResponse> request = tmdbService.getMovies(filter, 1);
 
         try {
             Response<MovieResponse> response = request.execute();
-            loadingStates.postValue(LoadingState.LOADED);
-            initialLoadingStates.postValue(LoadingState.LOADED);
+
+            networkState.postValue(NetworkState.LOADED);
+            initialLoadingState.postValue(NetworkState.LOADED);
 
             if (response == null) {
                 callback.onResult(Collections.<Movie>emptyList(), null, 1);
@@ -61,8 +62,9 @@ public class MovieDataSource extends PageKeyedDataSource<Integer, Movie> {
 
         } catch (IOException e) {
             e.printStackTrace();
-            loadingStates.postValue(LoadingState.FAILED);
-            initialLoadingStates.postValue(LoadingState.FAILED);
+            NetworkState error = NetworkState.error(e.getMessage() == null ? "Something went wrong" : e.getMessage());
+            networkState.postValue(error);
+            initialLoadingState.postValue(error);
         }
 
     }
@@ -74,13 +76,13 @@ public class MovieDataSource extends PageKeyedDataSource<Integer, Movie> {
 
     @Override
     public void loadAfter(@NonNull LoadParams<Integer> params, @NonNull LoadCallback<Integer, Movie> callback) {
-        loadingStates.postValue(LoadingState.LOADING);
+        networkState.postValue(NetworkState.LOADING);
 
         Call<MovieResponse> request = tmdbService.getMovies(filter, params.key + 1);
 
         try {
             Response<MovieResponse> response = request.execute();
-            loadingStates.postValue(LoadingState.LOADED);
+            networkState.postValue(NetworkState.LOADED);
 
             if (response == null) {
                 callback.onResult(Collections.<Movie>emptyList(), params.key + 1);
@@ -101,15 +103,15 @@ public class MovieDataSource extends PageKeyedDataSource<Integer, Movie> {
 
         } catch (IOException e) {
             e.printStackTrace();
-            loadingStates.postValue(LoadingState.FAILED);
+            networkState.postValue(NetworkState.error(e.getMessage() == null ? "Something went wrong" : e.getMessage()));
         }
     }
 
-    public MutableLiveData<LoadingState> getLoadingStates() {
-        return loadingStates;
+    public LiveData<NetworkState> getNetworkState() {
+        return networkState;
     }
 
-    public MutableLiveData<LoadingState> getInitialLoadingStates() {
-        return initialLoadingStates;
+    public LiveData<NetworkState> getInitialLoadingStates() {
+        return initialLoadingState;
     }
 }

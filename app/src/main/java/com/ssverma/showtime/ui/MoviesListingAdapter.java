@@ -11,11 +11,14 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 import com.ssverma.showtime.R;
+import com.ssverma.showtime.data.NetworkState;
 import com.ssverma.showtime.model.Movie;
+import com.ssverma.showtime.utils.AppUtility;
 
-public class MoviesListingAdapter extends PagedListAdapter<Movie, MoviesListingAdapter.ViewHolder> {
+public class MoviesListingAdapter extends PagedListAdapter<Movie, RecyclerView.ViewHolder> {
 
-    private static final String BASE_POSTER_PATH = "http://image.tmdb.org/t/p/w342";
+    public static final int VIEW_TYPE_LOADING = 2;
+    private static final int VIEW_TYPE_ITEM = 1;
     private static DiffUtil.ItemCallback<Movie> DIFF_CALLBACK = new DiffUtil.ItemCallback<Movie>() {
         @Override
         public boolean areItemsTheSame(Movie oldItem, Movie newItem) {
@@ -29,8 +32,9 @@ public class MoviesListingAdapter extends PagedListAdapter<Movie, MoviesListingA
     };
 
     private IRecyclerViewItemClickListener recyclerViewItemClickListener;
+    private NetworkState networkState;
 
-    protected MoviesListingAdapter() {
+    MoviesListingAdapter() {
         super(DIFF_CALLBACK);
     }
 
@@ -40,20 +44,77 @@ public class MoviesListingAdapter extends PagedListAdapter<Movie, MoviesListingA
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_item_movie, parent, false);
-        return new ViewHolder(itemView);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View itemView;
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+
+        switch (viewType) {
+            case VIEW_TYPE_ITEM:
+                itemView = inflater.inflate(R.layout.row_item_movie, parent, false);
+                return new ItemViewHolder(itemView);
+
+            case VIEW_TYPE_LOADING:
+                itemView = inflater.inflate(R.layout.row_item_loading, parent, false);
+                return new LoadingViewHolder(itemView);
+        }
+        throw new IllegalArgumentException("Invalid viewType: " + viewType);
+
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(position);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof ItemViewHolder) {
+            ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+            itemViewHolder.bind(position);
+
+        } else if (holder instanceof LoadingViewHolder) {
+            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
+            loadingViewHolder.bind();
+        }
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    @Override
+    public int getItemCount() {
+        if (shouldShowExtraRow()) {
+            return super.getItemCount() + 1;
+        }
+        return super.getItemCount();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (shouldShowExtraRow() && position == getItemCount() - 1) {
+            return VIEW_TYPE_LOADING;
+        }
+        return VIEW_TYPE_ITEM;
+    }
+
+    private boolean shouldShowExtraRow() {
+        return networkState != null && networkState.getStatus() != NetworkState.Status.SUCCESS;
+    }
+
+    public void setNetworkState(NetworkState newState) {
+        NetworkState prevState = this.networkState;
+        boolean isExtraRowAlreadyShowing = shouldShowExtraRow();
+        this.networkState = newState;
+        boolean shouldShowExtraRowNow = shouldShowExtraRow();
+
+        if (isExtraRowAlreadyShowing != shouldShowExtraRowNow) {
+            if (isExtraRowAlreadyShowing) {
+                notifyItemRemoved(getItemCount() - 1);
+            } else {
+                notifyItemInserted(getItemCount() - 1);
+            }
+        } else if (shouldShowExtraRowNow && prevState != newState) {
+            /*If error type changed*/
+            notifyItemChanged(getItemCount() - 1);
+        }
+    }
+
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private ImageView ivPoster;
 
-        ViewHolder(View itemView) {
+        ItemViewHolder(View itemView) {
             super(itemView);
             ivPoster = itemView.findViewById(R.id.iv_poster);
             itemView.setOnClickListener(this);
@@ -75,10 +136,25 @@ public class MoviesListingAdapter extends PagedListAdapter<Movie, MoviesListingA
             }
 
             Picasso.get()
-                    .load(BASE_POSTER_PATH + currentMovie.getPosterPath())
+                    .load(AppUtility.buildPosterUrl(currentMovie.getPosterPath()))
                     .placeholder(R.drawable.placeholder)
                     .error(R.drawable.placeholder)
                     .into(ivPoster);
         }
     }
+
+    private class LoadingViewHolder extends RecyclerView.ViewHolder {
+        LoadingViewHolder(View itemView) {
+            super(itemView);
+        }
+
+        public void bind() {
+            if (networkState == null || getAdapterPosition() == 0) {
+                itemView.setVisibility(View.GONE);
+                return;
+            }
+            itemView.setVisibility(networkState.getStatus() == NetworkState.Status.RUNNING ? View.VISIBLE : View.GONE);
+        }
+    }
+
 }

@@ -30,4 +30,7 @@ public class AppUtility {
         ViewUtils.displayToast(context, "Unable to launch!");
     }
 
+    public static String buildPosterUrl(String posterPath) {
+        return "http://image.tmdb.org/t/p/w342" + posterPath;
+    }
 }
