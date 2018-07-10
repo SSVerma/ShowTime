@@ -21,10 +21,10 @@ public class MovieDataSource extends PageKeyedDataSource<Integer, Movie> {
     private final TmdbService tmdbService;
     private final MutableLiveData<NetworkState> networkState;
     private final MutableLiveData<NetworkState> initialLoadingState;
-    private final String filter;
+    private final String path;
 
-    public MovieDataSource(String filter) {
-        this.filter = filter;
+    public MovieDataSource(String path) {
+        this.path = path;
         this.tmdbService = ApiUtils.getTmdbService();
         this.networkState = new MutableLiveData<>();
         this.initialLoadingState = new MutableLiveData<>();
@@ -35,7 +35,7 @@ public class MovieDataSource extends PageKeyedDataSource<Integer, Movie> {
         networkState.postValue(NetworkState.LOADING);
         initialLoadingState.postValue(NetworkState.LOADING);
 
-        Call<MovieResponse> request = tmdbService.getMovies(filter, 1);
+        Call<MovieResponse> request = tmdbService.getMovies(path, 1);
 
         try {
             Response<MovieResponse> response = request.execute();
@@ -78,7 +78,7 @@ public class MovieDataSource extends PageKeyedDataSource<Integer, Movie> {
     public void loadAfter(@NonNull LoadParams<Integer> params, @NonNull LoadCallback<Integer, Movie> callback) {
         networkState.postValue(NetworkState.LOADING);
 
-        Call<MovieResponse> request = tmdbService.getMovies(filter, params.key + 1);
+        Call<MovieResponse> request = tmdbService.getMovies(path, params.key + 1);
 
         try {
             Response<MovieResponse> response = request.execute();

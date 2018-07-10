@@ -19,4 +19,10 @@
     <string name="reviews_toolbar_title">Reviews</string>
     <string name="add_to_favorite">Add to favorite</string>
     <string name="favorite">Favorite</string>
+    <string name="most_popular_label">Most Popular</string>
+    <string name="top_rated_label">Top Rated</string>
+    <string name="favorite_label">Favorite</string>
+    <string name="popular_path">popular</string>
+    <string name="top_rated_path">top_rated</string>
+    <string name="favorite_path">favorite</string>
 </resources>

@@ -5,6 +5,7 @@ import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
+import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
 import android.os.AsyncTask;
@@ -36,9 +37,9 @@ public class MoviesRepository {
         tmdbService = ApiUtils.getTmdbService();
     }
 
-    public Listing<Movie> getMovies(String filter) {
+    public Listing<Movie> getMovies(String path) {
 
-        MovieDataSourceFactory movieDataSourceFactory = new MovieDataSourceFactory(filter);
+        MovieDataSourceFactory movieDataSourceFactory = new MovieDataSourceFactory(path);
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setPageSize(PAGE_SIZE)
@@ -66,6 +67,27 @@ public class MoviesRepository {
         );
     }
 
+    public Listing<Movie> getFavoriteMovies() {
+        DataSource.Factory<Integer, Movie> dbSourceFactory = movieDao.getAllFavoriteMovies();
+
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setPageSize(PAGE_SIZE)
+                .setEnablePlaceholders(true)
+                .build();
+
+        LiveData<PagedList<Movie>> movies = new LivePagedListBuilder<>(dbSourceFactory, config)
+                .setInitialLoadKey(1)
+                .build();
+
+        MutableLiveData<NetworkState> initialLoad = new MutableLiveData<>();
+        initialLoad.setValue(NetworkState.LOADED);
+
+        return new Listing<>(
+                movies,
+                null,
+                initialLoad);
+    }
+
     public LiveData<PagedList<Review>> getReviews(Integer movieId) {
         if (reviews != null) {
             return reviews;
@@ -83,15 +105,6 @@ public class MoviesRepository {
                 .build();
 
         return reviews;
-    }
-
-    public LiveData<NetworkState> getReviewsLoadingState() {
-        return Transformations.switchMap(reviewDataSourceFactory.getDataSourceLiveData(), new Function<ReviewDataSource, LiveData<NetworkState>>() {
-            @Override
-            public LiveData<NetworkState> apply(ReviewDataSource reviewDataSource) {
-                return reviewDataSource.getNetworkState();
-            }
-        });
     }
 
     public LiveData<Resource<VideosResponse>> getVideos(int movieId) {

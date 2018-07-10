@@ -9,18 +9,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ssverma.showtime.R;
+import com.ssverma.showtime.model.SortOptions;
 
 import java.util.List;
 
 public class SortOptionsAdapter extends RecyclerView.Adapter<SortOptionsAdapter.ViewHolder> {
 
-    private List<String> listSortOptions;
+    private List<SortOptions> listSortOptions;
     private IRecyclerViewItemClickListener recyclerViewItemClickListener;
-    private int selectedIndex;
+    private String selectedPath;
 
-    public SortOptionsAdapter(List<String> listSortOptions, int selectedIndex) {
+    SortOptionsAdapter(List<SortOptions> listSortOptions, String selectedPath) {
         this.listSortOptions = listSortOptions;
-        this.selectedIndex = selectedIndex;
+        this.selectedPath = selectedPath;
     }
 
     public void setRecyclerViewItemClickListener(IRecyclerViewItemClickListener recyclerViewItemClickListener) {
@@ -36,8 +37,9 @@ public class SortOptionsAdapter extends RecyclerView.Adapter<SortOptionsAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.tvSortOption.setText(listSortOptions.get(position));
-        if (position == selectedIndex) {
+        SortOptions current = listSortOptions.get(position);
+        holder.tvSortOption.setText(current.getSortOptionLabel());
+        if (current.getSortOptionPath().equals(selectedPath)) {
             holder.ivCheckIcon.setVisibility(View.VISIBLE);
         } else {
             holder.ivCheckIcon.setVisibility(View.GONE);
@@ -54,7 +56,7 @@ public class SortOptionsAdapter extends RecyclerView.Adapter<SortOptionsAdapter.
         TextView tvSortOption;
         ImageView ivCheckIcon;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
 
             tvSortOption = itemView.findViewById(R.id.tv_sort_option);

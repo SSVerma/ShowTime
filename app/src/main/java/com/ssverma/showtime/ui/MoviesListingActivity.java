@@ -24,14 +24,14 @@ import com.ssverma.showtime.R;
 import com.ssverma.showtime.data.NetworkState;
 import com.ssverma.showtime.data.SharedPrefHelper;
 import com.ssverma.showtime.model.Movie;
+import com.ssverma.showtime.model.SortOptions;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class MoviesListingActivity extends AppCompatActivity {
 
-    private int selectedSortIndex;
     private MoviesViewModel viewModel;
+    private MoviesListingAdapter moviesAdapter;
 
     public static void launch(Context context) {
         context.startActivity(new Intent(context, MoviesListingActivity.class));
@@ -68,20 +68,19 @@ public class MoviesListingActivity extends AppCompatActivity {
         btnRetry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //
+                viewModel.updatePath(viewModel.getLastSelectedSortPath());
             }
         });
     }
 
     private void setUpContents() {
-
-        selectedSortIndex = SharedPrefHelper.getSortSelectedIndex(this);
+        toggleMainRetryAction(false);
 
         final RecyclerView rvMovies = findViewById(R.id.rv_movies);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         rvMovies.setLayoutManager(gridLayoutManager);
 
-        final MoviesListingAdapter moviesAdapter = new MoviesListingAdapter();
+        moviesAdapter = new MoviesListingAdapter();
         rvMovies.setAdapter(moviesAdapter);
 
         moviesAdapter.setRecyclerViewItemClickListener(new IRecyclerViewItemClickListener() {
@@ -102,10 +101,7 @@ public class MoviesListingActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.updateFilter("popular");
-
-        toggleMainRetryAction(false);
-
+        viewModel.updatePath(viewModel.getLastSelectedSortPath());
         viewModel.getMovies().observe(this, new Observer<PagedList<Movie>>() {
             @Override
             public void onChanged(@Nullable PagedList<Movie> movies) {
@@ -115,19 +111,20 @@ public class MoviesListingActivity extends AppCompatActivity {
 
         viewModel.getInitialLoadState().observe(this, new Observer<NetworkState>() {
             @Override
-            public void onChanged(@Nullable NetworkState networkState) {
-                if (networkState == null || networkState.getStatus() == null) {
+            public void onChanged(@Nullable NetworkState initialLoadState) {
+                if (initialLoadState == null || initialLoadState.getStatus() == null) {
                     toggleProgressbarVisibility(false);
                     toggleMainRetryAction(true);
                     return;
                 }
 
-                if (networkState.getStatus() == NetworkState.Status.SUCCESS) {
+                if (initialLoadState.getStatus() == NetworkState.Status.SUCCESS) {
                     toggleProgressbarVisibility(false);
+                    toggleMainRetryAction(false);
                     return;
                 }
 
-                if (networkState.getStatus() == NetworkState.Status.FAILED) {
+                if (initialLoadState.getStatus() == NetworkState.Status.FAILED) {
                     toggleProgressbarVisibility(false);
                     toggleMainRetryAction(true);
                 }
@@ -159,31 +156,27 @@ public class MoviesListingActivity extends AppCompatActivity {
         rvSortOptions.setLayoutManager(new LinearLayoutManager(this));
         rvSortOptions.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
-        SortOptionsAdapter sortOptionsAdapter = new SortOptionsAdapter(prepareSortOptions(), selectedSortIndex);
+        final List<SortOptions> listSortOptions = viewModel.getSortOptions();
+
+        SortOptionsAdapter sortOptionsAdapter = new SortOptionsAdapter(listSortOptions, viewModel.getLastSelectedSortPath());
         rvSortOptions.setAdapter(sortOptionsAdapter);
 
         sortOptionsAdapter.setRecyclerViewItemClickListener(new IRecyclerViewItemClickListener() {
             @Override
             public void onItemClick(View clickedView, int position) {
-                if (position == SharedPrefHelper.getSortSelectedIndex(MoviesListingActivity.this)) {
+                SortOptions clickedSortOption = listSortOptions.get(position);
+                if (clickedSortOption.getSortOptionPath().equals(SharedPrefHelper.getLastSortSelectedPath(MoviesListingActivity.this))) {
                     dialog.dismiss();
                     return;
                 }
 
-                selectedSortIndex = position;
-                SharedPrefHelper.saveSortSelectedIndex(MoviesListingActivity.this, position);
+                moviesAdapter.submitList(null);
+                toggleProgressbarVisibility(true);
+                viewModel.updatePath(listSortOptions.get(position).getSortOptionPath());
                 dialog.dismiss();
             }
         });
 
-    }
-
-    private List<String> prepareSortOptions() {
-        String[] sortOptions = {
-                "Most Popular",
-                "Top Rated"
-        };
-        return Arrays.asList(sortOptions);
     }
 
     @Override
