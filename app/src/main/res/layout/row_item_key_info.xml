@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/content_spacing"
+    android:layout_marginEnd="@dimen/key_info_item_right_spacing"
+    android:layout_marginLeft="@dimen/content_spacing"
+    android:layout_marginRight="@dimen/key_info_item_right_spacing"
+    android:layout_marginStart="@dimen/content_spacing"
+    android:layout_marginTop="@dimen/content_spacing"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <!--Info icon-->
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/iv_info_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/info_icon_margin"
+        android:adjustViewBounds="true"
+        android:background="@drawable/background_key_info"
+        android:elevation="@dimen/info_icon_elevation"
+        android:padding="@dimen/content_spacing"
+        android:scaleType="fitCenter"
+        android:tint="@color/colorAccent"
+        tools:src="@drawable/ic_revenue"
+        tools:targetApi="lollipop" />
+
+    <!--Info value-->
+    <TextView
+        android:id="@+id/tv_info_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/info_value_spacing_top"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        tools:text="Info value" />
+
+</LinearLayout>

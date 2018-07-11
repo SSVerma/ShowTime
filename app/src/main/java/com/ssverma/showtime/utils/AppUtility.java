@@ -33,4 +33,8 @@ public class AppUtility {
     public static String buildPosterUrl(String posterPath) {
         return "http://image.tmdb.org/t/p/w342" + posterPath;
     }
+
+    public static String addDollarSymbol(int value) {
+        return "$" + value;
+    }
 }

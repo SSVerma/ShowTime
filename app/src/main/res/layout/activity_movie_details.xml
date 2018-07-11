@@ -69,15 +69,16 @@
             android:layout_marginTop="8dp"
             android:textColor="@color/colorAccent"
             android:textSize="15sp"
+            android:textStyle="bold"
             app:layout_constraintLeft_toRightOf="@+id/iv_poster"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/iv_backdrop"
             tools:text="Movie title" />
 
-        <!--Release date-->
+        <!--Tag-line-->
         <TextView
-            android:id="@+id/tv_release_date"
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_tag_line"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/details_content_spacing_left"
             android:layout_marginStart="@dimen/details_content_spacing_left"
@@ -86,37 +87,17 @@
             android:textColor="@android:color/black"
             android:textSize="14sp"
             app:layout_constraintLeft_toRightOf="@+id/iv_poster"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_movie_title"
-            tools:text="May 5, 2018" />
-
-        <!--Rating-->
-        <TextView
-            android:id="@+id/tv_rating"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/details_content_spacing_left"
-            android:layout_marginStart="@dimen/details_content_spacing_left"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/background_rating"
-            android:paddingBottom="2dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="2dp"
-            android:textColor="@android:color/black"
-            android:textSize="12sp"
-            app:layout_constraintLeft_toRightOf="@+id/iv_poster"
-            app:layout_constraintTop_toBottomOf="@+id/tv_release_date"
-            tools:text="9.1 / 10" />
+            tools:text="Dummy tag-line" />
 
         <!--Add to favorite action-->
         <TextView
             android:id="@+id/tv_add_to_favorite_action"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/details_content_spacing_right"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="@dimen/details_content_spacing_right"
-            android:layout_marginStart="8dp"
+            android:layout_marginLeft="@dimen/content_spacing"
+            android:layout_marginRight="@dimen/content_spacing"
             android:layout_marginTop="12dp"
             android:background="@drawable/background_rating"
             android:drawablePadding="4dp"
@@ -127,10 +108,27 @@
             android:paddingTop="2dp"
             android:textColor="@android:color/black"
             android:textSize="12sp"
-            app:layout_constraintLeft_toRightOf="@+id/tv_rating"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_release_date"
+            app:layout_constraintLeft_toRightOf="@+id/iv_poster"
+            app:layout_constraintTop_toBottomOf="@+id/tv_tag_line"
             tools:text="@string/add_to_favorite" />
+
+        <!--Barrier-->
+        <android.support.constraint.Barrier
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/barrier_poster"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="iv_poster, tv_add_to_favorite_action"/>
+
+        <!--Key movie info-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_key_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_spacing"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/barrier_poster" />
 
         <!--Synopsis section title-->
         <include
@@ -141,7 +139,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_poster" />
+            app:layout_constraintTop_toBottomOf="@+id/rv_key_info" />
 
         <!--Synopsis-->
         <TextView

@@ -17,6 +17,7 @@ import com.ssverma.showtime.common.Resource;
 import com.ssverma.showtime.data.db.MovieDao;
 import com.ssverma.showtime.data.db.MovieDatabase;
 import com.ssverma.showtime.model.Movie;
+import com.ssverma.showtime.model.MovieDetailsResponse;
 import com.ssverma.showtime.model.Review;
 import com.ssverma.showtime.model.VideosResponse;
 
@@ -27,7 +28,6 @@ import retrofit2.Response;
 public class MoviesRepository {
     private static final int PAGE_SIZE = 10;
     private final TmdbService tmdbService;
-    private ReviewDataSourceFactory reviewDataSourceFactory;
     private LiveData<PagedList<Review>> reviews;
     private MovieDao movieDao;
 
@@ -93,7 +93,7 @@ public class MoviesRepository {
             return reviews;
         }
 
-        reviewDataSourceFactory = new ReviewDataSourceFactory(movieId);
+        ReviewDataSourceFactory reviewDataSourceFactory = new ReviewDataSourceFactory(movieId);
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setPageSize(PAGE_SIZE)
@@ -119,6 +119,24 @@ public class MoviesRepository {
             @Override
             public void onFailure(@NonNull Call<VideosResponse> call, @NonNull Throwable t) {
                 data.setValue(new Resource<VideosResponse>(t));
+            }
+        });
+
+        return data;
+    }
+
+    public LiveData<Resource<MovieDetailsResponse>> getMovieDetails(int movieId) {
+        final MutableLiveData<Resource<MovieDetailsResponse>> data = new MutableLiveData<>();
+
+        tmdbService.getMovieDetails(movieId).enqueue(new Callback<MovieDetailsResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<MovieDetailsResponse> call, @NonNull Response<MovieDetailsResponse> response) {
+                data.setValue(new Resource<MovieDetailsResponse>(response.body()));
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<MovieDetailsResponse> call, @NonNull Throwable t) {
+                data.setValue(new Resource<MovieDetailsResponse>(t));
             }
         });
 

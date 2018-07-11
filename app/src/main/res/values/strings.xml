@@ -25,4 +25,12 @@
     <string name="popular_path">popular</string>
     <string name="top_rated_path">top_rated</string>
     <string name="favorite_path">favorite</string>
+    <string name="info_adult">Adult</string>
+    <string name="info_budget">Budget</string>
+    <string name="info_language">Language</string>
+    <string name="info_release_date">Release date</string>
+    <string name="info_revenue">Revenue</string>
+    <string name="info_runtime">Runtime</string>
+    <string name="info_status">Status</string>
+    <string name="info_vote">Vote</string>
 </resources>

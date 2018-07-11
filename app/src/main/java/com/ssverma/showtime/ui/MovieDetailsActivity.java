@@ -25,6 +25,8 @@ import com.squareup.picasso.Picasso;
 import com.ssverma.showtime.R;
 import com.ssverma.showtime.common.Resource;
 import com.ssverma.showtime.model.Movie;
+import com.ssverma.showtime.model.MovieDetailsResponse;
+import com.ssverma.showtime.model.MovieKeyInfo;
 import com.ssverma.showtime.model.Review;
 import com.ssverma.showtime.model.Video;
 import com.ssverma.showtime.model.VideosResponse;
@@ -57,10 +59,46 @@ public class MovieDetailsActivity extends AppCompatActivity {
         initViews();
         initViewModel();
         setUpToolbar();
-        setUpContents();
+        setUpHeaderContents();
+        setUpMovieKeyInfo();
         setUpFavoriteToggle();
         setUpVideosSection();
         setUpReviewsSection();
+    }
+
+    private void setUpMovieKeyInfo() {
+        try {
+
+            RecyclerView rvKeyInfo = findViewById(R.id.rv_key_info);
+            rvKeyInfo.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            rvKeyInfo.setNestedScrollingEnabled(false);
+
+            final List<MovieKeyInfo> listKeyInfo = new ArrayList<>();
+
+            final MovieKeyInfoAdapter keyInfoAdapter = new MovieKeyInfoAdapter(listKeyInfo);
+            rvKeyInfo.setAdapter(keyInfoAdapter);
+
+            final TextView tvTagLine = findViewById(R.id.tv_tag_line);
+
+            viewModel.getMovieDetails().observe(this, new Observer<Resource<MovieDetailsResponse>>() {
+                @Override
+                public void onChanged(@Nullable Resource<MovieDetailsResponse> resource) {
+                    if (resource == null || !resource.isSuccess()) {
+                        return;
+                    }
+
+                    listKeyInfo.clear();
+                    listKeyInfo.addAll(viewModel.getMovieKeyInfo(resource.getData()));
+                    keyInfoAdapter.notifyDataSetChanged();
+
+                    tvTagLine.setText(resource.getData().getTagLine());
+
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void setUpFavoriteToggle() {
@@ -213,7 +251,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         viewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
     }
 
-    private void setUpContents() {
+    private void setUpHeaderContents() {
         Movie movie = getIntent().getParcelableExtra(EXTRA_MOVIE);
 
         /*Backdrop image*/
@@ -235,15 +273,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         /*Title*/
         TextView tvMovieTitle = findViewById(R.id.tv_movie_title);
         tvMovieTitle.setText(movie.getMovieTitle());
-
-        /*Release date*/
-        TextView tvReleaseDate = findViewById(R.id.tv_release_date);
-        tvReleaseDate.setText(movie.getReleaseDate());
-
-        /*Ratings*/
-        TextView tvRatings = findViewById(R.id.tv_rating);
-        String formattedRating = movie.getUserRating() + " / 10";
-        tvRatings.setText(formattedRating);
 
         /*Synopsis label*/
         LinearLayout llSectionTitle = findViewById(R.id.ll_synopsis_section_title_holder);

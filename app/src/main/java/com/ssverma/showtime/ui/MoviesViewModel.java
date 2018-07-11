@@ -15,9 +15,12 @@ import com.ssverma.showtime.data.MoviesRepository;
 import com.ssverma.showtime.data.NetworkState;
 import com.ssverma.showtime.data.SharedPrefHelper;
 import com.ssverma.showtime.model.Movie;
+import com.ssverma.showtime.model.MovieDetailsResponse;
+import com.ssverma.showtime.model.MovieKeyInfo;
 import com.ssverma.showtime.model.Review;
 import com.ssverma.showtime.model.SortOptions;
 import com.ssverma.showtime.model.VideosResponse;
+import com.ssverma.showtime.utils.AppUtility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +29,14 @@ public class MoviesViewModel extends AndroidViewModel {
     private final MoviesRepository repository;
     private final LiveData<NetworkState> networkState;
     private final LiveData<NetworkState> initialLoadState;
-    private Application application;
-    private LiveData<Resource<VideosResponse>> videoLiveData;
-    private LiveData<PagedList<Review>> reviewsLiveData;
-    private LiveData<PagedList<Movie>> movies;
+    private final Application application;
+    private final LiveData<Resource<VideosResponse>> videoLiveData;
+    private final LiveData<PagedList<Review>> reviewsLiveData;
+    private final LiveData<PagedList<Movie>> movies;
+    private final LiveData<Boolean> isMovieFavorite;
+    private final LiveData<Resource<MovieDetailsResponse>> movieDetails;
     private MutableLiveData<Integer> movieIdLiveData = new MutableLiveData<>();
     private MutableLiveData<String> pathLiveData = new MutableLiveData<>();
-    private LiveData<Boolean> isMovieFavorite;
 
     public MoviesViewModel(final Application application) {
         super(application);
@@ -91,6 +95,14 @@ public class MoviesViewModel extends AndroidViewModel {
                 return input.getInitialLoadState();
             }
         });
+
+        movieDetails = Transformations.switchMap(movieIdLiveData, new Function<Integer, LiveData<Resource<MovieDetailsResponse>>>() {
+            @Override
+            public LiveData<Resource<MovieDetailsResponse>> apply(Integer movieId) {
+                return repository.getMovieDetails(movieId);
+            }
+        });
+
     }
 
     public void updateMovieId(int movieId) {
@@ -124,6 +136,10 @@ public class MoviesViewModel extends AndroidViewModel {
 
     public LiveData<PagedList<Movie>> getMovies() {
         return movies;
+    }
+
+    public LiveData<Resource<MovieDetailsResponse>> getMovieDetails() {
+        return movieDetails;
     }
 
     public LiveData<NetworkState> getNetworkState() {
@@ -162,6 +178,55 @@ public class MoviesViewModel extends AndroidViewModel {
     public String getLastSelectedSortPath() {
         String lastSortPath = SharedPrefHelper.getLastSortSelectedPath(application);
         return lastSortPath == null ? application.getString(R.string.popular_path) : lastSortPath;
+    }
+
+    public List<MovieKeyInfo> getMovieKeyInfo(MovieDetailsResponse movieDetails) {
+        List<MovieKeyInfo> resultList = new ArrayList<>();
+
+        String[] values = {
+                movieDetails.isAdult() ? "Yes" : "No",
+                AppUtility.addDollarSymbol(movieDetails.getBudget()),
+                movieDetails.getLanguage(),
+                movieDetails.getReleaseDate(),
+                AppUtility.addDollarSymbol(movieDetails.getRevenue()),
+                movieDetails.getRuntime() + " mins",
+                movieDetails.getStatus(),
+                movieDetails.getVoteAvg() + "/" + movieDetails.getVoteCount()
+        };
+
+        /*Tied up*/
+        String[] labels = {
+                application.getString(R.string.info_adult),
+                application.getString(R.string.info_budget),
+                application.getString(R.string.info_language),
+                application.getString(R.string.info_release_date),
+                application.getString(R.string.info_revenue),
+                application.getString(R.string.info_runtime),
+                application.getString(R.string.info_status),
+                application.getString(R.string.info_vote)
+        };
+
+        /*Tied up*/
+        int[] icons = {
+                R.drawable.ic_adult,
+                R.drawable.ic_budget,
+                R.drawable.ic_language,
+                R.drawable.ic_release_date,
+                R.drawable.ic_revenue,
+                R.drawable.ic_runtime,
+                R.drawable.ic_status,
+                R.drawable.ic_vote,
+        };
+
+        for (int i = 0; i < values.length; i++) {
+            MovieKeyInfo keyInfo = new MovieKeyInfo();
+            keyInfo.setLabel(labels[i]);
+            keyInfo.setValue(values[i]);
+            keyInfo.setIcon(icons[i]);
+            resultList.add(keyInfo);
+        }
+
+        return resultList;
     }
 
 }
