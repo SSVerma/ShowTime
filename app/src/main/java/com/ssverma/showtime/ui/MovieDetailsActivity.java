@@ -11,6 +11,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -24,12 +25,17 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.ssverma.showtime.R;
 import com.ssverma.showtime.common.Resource;
+import com.ssverma.showtime.model.Cast;
+import com.ssverma.showtime.model.CastResponse;
+import com.ssverma.showtime.model.Genre;
 import com.ssverma.showtime.model.Movie;
 import com.ssverma.showtime.model.MovieDetailsResponse;
 import com.ssverma.showtime.model.MovieKeyInfo;
 import com.ssverma.showtime.model.Review;
 import com.ssverma.showtime.model.Video;
 import com.ssverma.showtime.model.VideosResponse;
+import com.ssverma.showtime.ui.review.ReviewsActivity;
+import com.ssverma.showtime.ui.review.ReviewsAdapter;
 import com.ssverma.showtime.utils.AppUtility;
 
 import java.util.ArrayList;
@@ -64,11 +70,46 @@ public class MovieDetailsActivity extends AppCompatActivity {
         setUpFavoriteToggle();
         setUpVideosSection();
         setUpReviewsSection();
+        setUpCastsSection();
+    }
+
+    private void setUpCastsSection() {
+
+        /*Cast section title*/
+        final LinearLayout llSectionTitle = findViewById(R.id.ll_casts);
+        llSectionTitle.setVisibility(View.GONE);
+        TextView tvSectionTitle = llSectionTitle.findViewById(R.id.tv_section_title);
+        tvSectionTitle.setText(getString(R.string.label_casts));
+
+        RecyclerView rvCasts = findViewById(R.id.rv_casts);
+        rvCasts.setLayoutManager(new GridLayoutManager(this, 3));
+        rvCasts.setNestedScrollingEnabled(false);
+
+        final List<Cast> listCasts = new ArrayList<>();
+
+        final CastsAdapter castsAdapter = new CastsAdapter(listCasts);
+        rvCasts.setAdapter(castsAdapter);
+
+        viewModel.getCasts().observe(this, new Observer<Resource<CastResponse>>() {
+            @Override
+            public void onChanged(@Nullable Resource<CastResponse> resource) {
+                if (resource == null || !resource.isSuccess()) {
+                    return;
+                }
+
+                listCasts.clear();
+                listCasts.addAll(resource.getData().getCasts());
+                castsAdapter.notifyDataSetChanged();
+                llSectionTitle.setVisibility(View.VISIBLE);
+            }
+        });
+
     }
 
     private void setUpMovieKeyInfo() {
         try {
 
+            /*Key Info*/
             RecyclerView rvKeyInfo = findViewById(R.id.rv_key_info);
             rvKeyInfo.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             rvKeyInfo.setNestedScrollingEnabled(false);
@@ -78,6 +119,17 @@ public class MovieDetailsActivity extends AppCompatActivity {
             final MovieKeyInfoAdapter keyInfoAdapter = new MovieKeyInfoAdapter(listKeyInfo);
             rvKeyInfo.setAdapter(keyInfoAdapter);
 
+            /*Genre*/
+            RecyclerView rvGenre = findViewById(R.id.rv_genre);
+            rvGenre.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            rvGenre.setNestedScrollingEnabled(false);
+
+            final List<Genre> listGenres = new ArrayList<>();
+
+            final GenreAdapter genreAdapter = new GenreAdapter(listGenres);
+            rvGenre.setAdapter(genreAdapter);
+
+            /*Movie tag-line*/
             final TextView tvTagLine = findViewById(R.id.tv_tag_line);
 
             viewModel.getMovieDetails().observe(this, new Observer<Resource<MovieDetailsResponse>>() {
@@ -91,8 +143,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
                     listKeyInfo.addAll(viewModel.getMovieKeyInfo(resource.getData()));
                     keyInfoAdapter.notifyDataSetChanged();
 
-                    tvTagLine.setText(resource.getData().getTagLine());
+                    listGenres.clear();
+                    listGenres.addAll(resource.getData().getGenres());
+                    genreAdapter.notifyDataSetChanged();
 
+                    tvTagLine.setText(resource.getData().getTagLine());
                 }
             });
 
@@ -168,7 +223,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.updateMovieId(movie.getId());
         viewModel.getReviews().observe(this, new Observer<PagedList<Review>>() {
             boolean isFirstTime = true;
 
@@ -218,9 +272,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
             }
         });
 
-        Movie movie = getIntent().getParcelableExtra(EXTRA_MOVIE);
-        viewModel.updateMovieId(movie.getId());
-
         viewModel.getVideos().observe(this, new Observer<Resource<VideosResponse>>() {
             @Override
             public void onChanged(@Nullable Resource<VideosResponse> resource) {
@@ -249,6 +300,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     private void initViewModel() {
         viewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
+        Movie movie = getIntent().getParcelableExtra(EXTRA_MOVIE);
+        viewModel.updateMovieId(movie.getId());
     }
 
     private void setUpHeaderContents() {

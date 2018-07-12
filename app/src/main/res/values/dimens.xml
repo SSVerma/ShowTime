@@ -13,5 +13,5 @@
     <dimen name="key_info_item_right_spacing">8dp</dimen>
     <dimen name="info_icon_margin">2dp</dimen>
     <dimen name="info_icon_elevation">4dp</dimen>
-    <dimen name="info_value_spacing_top">8dp</dimen>
+    <dimen name="info_value_spacing_top">2dp</dimen>
 </resources>

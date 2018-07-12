@@ -19,26 +19,26 @@ import retrofit2.Response;
 public class ReviewDataSource extends PageKeyedDataSource<Integer, Review> {
 
     private final TmdbService tmdbService;
-    private final MutableLiveData<NetworkState> networkState;
+    private final MutableLiveData<NetworkState> initialState;
     private final int movieId;
 
     ReviewDataSource(int movieId) {
         this.movieId = movieId;
         tmdbService = ApiUtils.getTmdbService();
-        networkState = new MutableLiveData<>();
+        initialState = new MutableLiveData<>();
     }
 
     @Override
     public void loadInitial(@NonNull LoadInitialParams<Integer> params, @NonNull LoadInitialCallback<Integer, Review> callback) {
-        networkState.postValue(NetworkState.LOADING);
+        initialState.postValue(NetworkState.LOADING);
 
         Call<ReviewsResponse> request = tmdbService.getReviews(movieId, 1);
 
         try {
             Response<ReviewsResponse> response = request.execute();
-            networkState.postValue(NetworkState.LOADED);
+            initialState.postValue(NetworkState.LOADED);
 
-            if (response == null) {
+            if (response == null || !response.isSuccessful()) {
                 callback.onResult(Collections.<Review>emptyList(), null, 2);
                 return;
             }
@@ -52,7 +52,7 @@ public class ReviewDataSource extends PageKeyedDataSource<Integer, Review> {
 
         } catch (IOException e) {
             e.printStackTrace();
-            networkState.postValue(NetworkState.error(e.getMessage()));
+            initialState.postValue(NetworkState.error(e.getMessage()));
         }
 
     }
@@ -64,15 +64,15 @@ public class ReviewDataSource extends PageKeyedDataSource<Integer, Review> {
 
     @Override
     public void loadAfter(@NonNull LoadParams<Integer> params, @NonNull LoadCallback<Integer, Review> callback) {
-        networkState.postValue(NetworkState.LOADING);
+        initialState.postValue(NetworkState.LOADING);
 
         Call<ReviewsResponse> request = tmdbService.getReviews(movieId, params.key + 1);
 
         try {
             Response<ReviewsResponse> response = request.execute();
-            networkState.postValue(NetworkState.LOADED);
+            initialState.postValue(NetworkState.LOADED);
 
-            if (response == null) {
+            if (response == null || !response.isSuccessful()) {
                 callback.onResult(Collections.<Review>emptyList(), params.key + 1);
                 return;
             }
@@ -86,12 +86,12 @@ public class ReviewDataSource extends PageKeyedDataSource<Integer, Review> {
 
         } catch (IOException e) {
             e.printStackTrace();
-            networkState.postValue(NetworkState.error(e.getMessage()));
+            initialState.postValue(NetworkState.error(e.getMessage()));
         }
 
     }
 
-    public LiveData<NetworkState> getNetworkState() {
-        return networkState;
+    public LiveData<NetworkState> getInitialState() {
+        return initialState;
     }
 }

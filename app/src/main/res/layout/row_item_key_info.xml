@@ -27,13 +27,23 @@
         tools:src="@drawable/ic_revenue"
         tools:targetApi="lollipop" />
 
+    <!--Info label-->
+    <TextView
+        android:id="@+id/tv_info_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/info_value_spacing_top"
+        android:gravity="center"
+        android:textSize="12sp"
+        tools:text="Info value" />
+
     <!--Info value-->
     <TextView
         android:id="@+id/tv_info_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/info_value_spacing_top"
         android:gravity="center"
+        android:textColor="@color/colorAccent"
         android:textSize="12sp"
         android:textStyle="bold"
         tools:text="Info value" />

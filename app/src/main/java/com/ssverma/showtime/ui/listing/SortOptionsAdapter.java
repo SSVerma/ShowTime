@@ -1,4 +1,4 @@
-package com.ssverma.showtime.ui;
+package com.ssverma.showtime.ui.listing;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.ssverma.showtime.R;
 import com.ssverma.showtime.model.SortOptions;
+import com.ssverma.showtime.ui.IRecyclerViewItemClickListener;
 
 import java.util.List;
 

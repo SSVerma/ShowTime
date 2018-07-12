@@ -14,6 +14,7 @@ import com.ssverma.showtime.data.Listing;
 import com.ssverma.showtime.data.MoviesRepository;
 import com.ssverma.showtime.data.NetworkState;
 import com.ssverma.showtime.data.SharedPrefHelper;
+import com.ssverma.showtime.model.CastResponse;
 import com.ssverma.showtime.model.Movie;
 import com.ssverma.showtime.model.MovieDetailsResponse;
 import com.ssverma.showtime.model.MovieKeyInfo;
@@ -29,12 +30,14 @@ public class MoviesViewModel extends AndroidViewModel {
     private final MoviesRepository repository;
     private final LiveData<NetworkState> networkState;
     private final LiveData<NetworkState> initialLoadState;
+    private final LiveData<NetworkState> initialReviewLoadState;
     private final Application application;
     private final LiveData<Resource<VideosResponse>> videoLiveData;
     private final LiveData<PagedList<Review>> reviewsLiveData;
     private final LiveData<PagedList<Movie>> movies;
     private final LiveData<Boolean> isMovieFavorite;
     private final LiveData<Resource<MovieDetailsResponse>> movieDetails;
+    private final LiveData<Resource<CastResponse>> casts;
     private MutableLiveData<Integer> movieIdLiveData = new MutableLiveData<>();
     private MutableLiveData<String> pathLiveData = new MutableLiveData<>();
 
@@ -48,13 +51,6 @@ public class MoviesViewModel extends AndroidViewModel {
             @Override
             public LiveData<Resource<VideosResponse>> apply(Integer movieId) {
                 return repository.getVideos(movieId);
-            }
-        });
-
-        reviewsLiveData = Transformations.switchMap(movieIdLiveData, new Function<Integer, LiveData<PagedList<Review>>>() {
-            @Override
-            public LiveData<PagedList<Review>> apply(Integer movieId) {
-                return repository.getReviews(movieId);
             }
         });
 
@@ -103,6 +99,33 @@ public class MoviesViewModel extends AndroidViewModel {
             }
         });
 
+        final LiveData<Listing<Review>> reviewResult = Transformations.map(movieIdLiveData, new Function<Integer, Listing<Review>>() {
+            @Override
+            public Listing<Review> apply(Integer movieId) {
+                return repository.getReviews(movieId);
+            }
+        });
+
+        reviewsLiveData = Transformations.switchMap(reviewResult, new Function<Listing<Review>, LiveData<PagedList<Review>>>() {
+            @Override
+            public LiveData<PagedList<Review>> apply(Listing<Review> input) {
+                return input.getPagedList();
+            }
+        });
+
+        initialReviewLoadState = Transformations.switchMap(reviewResult, new Function<Listing<Review>, LiveData<NetworkState>>() {
+            @Override
+            public LiveData<NetworkState> apply(Listing<Review> input) {
+                return input.getInitialLoadState();
+            }
+        });
+
+        casts = Transformations.switchMap(movieIdLiveData, new Function<Integer, LiveData<Resource<CastResponse>>>() {
+            @Override
+            public LiveData<Resource<CastResponse>> apply(Integer movieId) {
+                return repository.getMovieCasts(movieId);
+            }
+        });
     }
 
     public void updateMovieId(int movieId) {
@@ -150,6 +173,14 @@ public class MoviesViewModel extends AndroidViewModel {
         return initialLoadState;
     }
 
+    public LiveData<NetworkState> getInitialReviewLoadState() {
+        return initialReviewLoadState;
+    }
+
+    public LiveData<Resource<CastResponse>> getCasts() {
+        return casts;
+    }
+
     public List<SortOptions> getSortOptions() {
         String[] sortOptions = {
                 application.getString(R.string.most_popular_label),
@@ -191,7 +222,7 @@ public class MoviesViewModel extends AndroidViewModel {
                 AppUtility.addDollarSymbol(movieDetails.getRevenue()),
                 movieDetails.getRuntime() + " mins",
                 movieDetails.getStatus(),
-                movieDetails.getVoteAvg() + "/" + movieDetails.getVoteCount()
+                movieDetails.getVoteAvg() + " / " + movieDetails.getVoteCount()
         };
 
         /*Tied up*/

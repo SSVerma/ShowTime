@@ -16,6 +16,7 @@ import com.ssverma.showtime.api.TmdbService;
 import com.ssverma.showtime.common.Resource;
 import com.ssverma.showtime.data.db.MovieDao;
 import com.ssverma.showtime.data.db.MovieDatabase;
+import com.ssverma.showtime.model.CastResponse;
 import com.ssverma.showtime.model.Movie;
 import com.ssverma.showtime.model.MovieDetailsResponse;
 import com.ssverma.showtime.model.Review;
@@ -28,7 +29,6 @@ import retrofit2.Response;
 public class MoviesRepository {
     private static final int PAGE_SIZE = 10;
     private final TmdbService tmdbService;
-    private LiveData<PagedList<Review>> reviews;
     private MovieDao movieDao;
 
     public MoviesRepository(Application application) {
@@ -88,10 +88,7 @@ public class MoviesRepository {
                 initialLoad);
     }
 
-    public LiveData<PagedList<Review>> getReviews(Integer movieId) {
-        if (reviews != null) {
-            return reviews;
-        }
+    public Listing<Review> getReviews(Integer movieId) {
 
         ReviewDataSourceFactory reviewDataSourceFactory = new ReviewDataSourceFactory(movieId);
 
@@ -100,11 +97,20 @@ public class MoviesRepository {
                 .setEnablePlaceholders(false)
                 .build();
 
-        reviews = new LivePagedListBuilder<Integer, Review>(reviewDataSourceFactory, config)
+        LiveData<PagedList<Review>> reviews = new LivePagedListBuilder<Integer, Review>(reviewDataSourceFactory, config)
                 .setInitialLoadKey(1)
                 .build();
 
-        return reviews;
+        return new Listing<>(
+                reviews,
+                null,
+                Transformations.switchMap(reviewDataSourceFactory.getDataSourceLiveData(), new Function<ReviewDataSource, LiveData<NetworkState>>() {
+                    @Override
+                    public LiveData<NetworkState> apply(ReviewDataSource input) {
+                        return input.getInitialState();
+                    }
+                })
+        );
     }
 
     public LiveData<Resource<VideosResponse>> getVideos(int movieId) {
@@ -137,6 +143,24 @@ public class MoviesRepository {
             @Override
             public void onFailure(@NonNull Call<MovieDetailsResponse> call, @NonNull Throwable t) {
                 data.setValue(new Resource<MovieDetailsResponse>(t));
+            }
+        });
+
+        return data;
+    }
+
+    public LiveData<Resource<CastResponse>> getMovieCasts(int movieId) {
+        final MutableLiveData<Resource<CastResponse>> data = new MutableLiveData<>();
+
+        tmdbService.getMovieCasts(movieId).enqueue(new Callback<CastResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<CastResponse> call, @NonNull Response<CastResponse> response) {
+                data.setValue(new Resource<CastResponse>(response.body()));
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<CastResponse> call, @NonNull Throwable t) {
+                data.setValue(new Resource<CastResponse>(t));
             }
         });
 

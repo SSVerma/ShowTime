@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tv_genre"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
+    android:layout_marginLeft="@dimen/content_spacing"
+    android:layout_marginStart="@dimen/content_spacing"
+    android:layout_marginTop="4dp"
+    android:background="@drawable/background_genre"
+    android:elevation="2dp"
+    android:paddingBottom="8dp"
+    android:paddingLeft="24dp"
+    android:paddingRight="24dp"
+    android:paddingTop="8dp"
+    android:textColor="@color/colorAccent"
+    android:textSize="14sp"
+    tools:targetApi="lollipop"
+    tools:text="Genre">
+
+</TextView>

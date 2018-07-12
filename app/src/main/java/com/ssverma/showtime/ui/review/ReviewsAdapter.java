@@ -1,4 +1,4 @@
-package com.ssverma.showtime.ui;
+package com.ssverma.showtime.ui.review;
 
 import android.arch.paging.PagedListAdapter;
 import android.support.annotation.NonNull;
@@ -31,7 +31,7 @@ public class ReviewsAdapter extends PagedListAdapter<Review, ReviewsAdapter.View
 
     private final boolean shouldShowAllItems;
 
-    ReviewsAdapter(boolean shouldShowAllItems) {
+    public ReviewsAdapter(boolean shouldShowAllItems) {
         super(DIFF_CALLBACK);
         this.shouldShowAllItems = shouldShowAllItems;
     }

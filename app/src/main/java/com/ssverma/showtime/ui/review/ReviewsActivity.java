@@ -1,4 +1,4 @@
-package com.ssverma.showtime.ui;
+package com.ssverma.showtime.ui.review;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -12,11 +12,15 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
 import com.ssverma.showtime.R;
+import com.ssverma.showtime.data.NetworkState;
 import com.ssverma.showtime.model.Review;
+import com.ssverma.showtime.ui.MoviesViewModel;
 
 public class ReviewsActivity extends AppCompatActivity {
 
@@ -54,13 +58,17 @@ public class ReviewsActivity extends AppCompatActivity {
 
         viewModel.updateMovieId(movieId);
         viewModel.getReviews().observe(this, new Observer<PagedList<Review>>() {
-            boolean isFirstTime = true;
-
             @Override
             public void onChanged(@Nullable PagedList<Review> reviews) {
                 reviewsAdapter.submitList(reviews);
-                if (isFirstTime) {
-                    isFirstTime = false;
+            }
+        });
+
+        viewModel.getInitialReviewLoadState().observe(this, new Observer<NetworkState>() {
+            @Override
+            public void onChanged(@Nullable NetworkState networkState) {
+                if (networkState == null || networkState.getStatus() == NetworkState.Status.SUCCESS
+                        || networkState.getStatus() == NetworkState.Status.FAILED) {
                     pbLoadingIndicator.setVisibility(View.GONE);
                 }
             }
@@ -78,5 +86,21 @@ public class ReviewsActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.reviews_toolbar_title);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_reviews, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

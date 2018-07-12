@@ -1,10 +1,14 @@
 package com.ssverma.showtime.api;
 
 import com.ssverma.showtime.BuildConfig;
+import com.ssverma.showtime.model.Cast;
+import com.ssverma.showtime.model.CastResponse;
 import com.ssverma.showtime.model.MovieDetailsResponse;
 import com.ssverma.showtime.model.MovieResponse;
 import com.ssverma.showtime.model.ReviewsResponse;
 import com.ssverma.showtime.model.VideosResponse;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -24,5 +28,8 @@ public interface TmdbService {
 
     @GET("movie/{movie_id}?api_key=" + BuildConfig.TmdbApiKey)
     Call<MovieDetailsResponse> getMovieDetails(@Path("movie_id") int movieId);
+
+    @GET("movie/{movie_id}/credits?api_key=" + BuildConfig.TmdbApiKey)
+    Call<CastResponse> getMovieCasts(@Path("movie_id") int movieId);
 
 }

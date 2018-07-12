@@ -34,6 +34,10 @@ public class AppUtility {
         return "http://image.tmdb.org/t/p/w342" + posterPath;
     }
 
+    public static String buildCastImageUrl(String profilePath) {
+        return "http://image.tmdb.org/t/p/w342" + profilePath;
+    }
+
     public static String addDollarSymbol(int value) {
         return "$" + value;
     }

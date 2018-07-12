@@ -1,4 +1,4 @@
-package com.ssverma.showtime.ui;
+package com.ssverma.showtime.ui.listing;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -19,12 +19,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.ssverma.showtime.R;
 import com.ssverma.showtime.data.NetworkState;
 import com.ssverma.showtime.data.SharedPrefHelper;
 import com.ssverma.showtime.model.Movie;
 import com.ssverma.showtime.model.SortOptions;
+import com.ssverma.showtime.ui.IRecyclerViewItemClickListener;
+import com.ssverma.showtime.ui.MovieDetailsActivity;
+import com.ssverma.showtime.ui.MoviesViewModel;
 
 import java.util.List;
 
@@ -56,6 +60,8 @@ public class MoviesListingActivity extends AppCompatActivity {
 
     private void toggleMainRetryAction(boolean shouldShow) {
         LinearLayout llErrorState = findViewById(R.id.ll_error_state);
+        final ProgressBar progressBar = llErrorState.findViewById(R.id.progress_bar);
+        progressBar.setVisibility(View.GONE);
 
         if (!shouldShow) {
             llErrorState.setVisibility(View.GONE);
@@ -63,12 +69,15 @@ public class MoviesListingActivity extends AppCompatActivity {
         }
 
         llErrorState.setVisibility(View.VISIBLE);
-        Button btnRetry = llErrorState.findViewById(R.id.btn_retry);
+        final Button btnRetry = llErrorState.findViewById(R.id.btn_retry);
+        btnRetry.setVisibility(View.VISIBLE);
 
         btnRetry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 viewModel.updatePath(viewModel.getLastSelectedSortPath());
+                progressBar.setVisibility(View.VISIBLE);
+                btnRetry.setVisibility(View.GONE);
             }
         });
     }

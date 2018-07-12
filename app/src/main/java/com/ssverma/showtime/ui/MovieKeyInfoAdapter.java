@@ -16,14 +16,9 @@ import java.util.List;
 public class MovieKeyInfoAdapter extends RecyclerView.Adapter<MovieKeyInfoAdapter.ViewHolder> {
 
     private List<MovieKeyInfo> listKeyInfo;
-    private IRecyclerViewItemClickListener recyclerViewItemClickListener;
 
     MovieKeyInfoAdapter(List<MovieKeyInfo> listKeyInfo) {
         this.listKeyInfo = listKeyInfo;
-    }
-
-    public void setRecyclerViewItemClickListener(IRecyclerViewItemClickListener recyclerViewItemClickListener) {
-        this.recyclerViewItemClickListener = recyclerViewItemClickListener;
     }
 
     @NonNull
@@ -43,31 +38,24 @@ public class MovieKeyInfoAdapter extends RecyclerView.Adapter<MovieKeyInfoAdapte
         return listKeyInfo == null ? 0 : listKeyInfo.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
         private ImageView ivInfoIcon;
         private TextView tvInfoValue;
+        private TextView tvInfoLabel;
 
         ViewHolder(View itemView) {
             super(itemView);
             tvInfoValue = itemView.findViewById(R.id.tv_info_value);
+            tvInfoLabel = itemView.findViewById(R.id.tv_info_label);
             ivInfoIcon = itemView.findViewById(R.id.iv_info_icon);
-
-            itemView.setOnClickListener(this);
         }
 
         void bind(int position) {
             MovieKeyInfo current = listKeyInfo.get(position);
             tvInfoValue.setText(current.getValue());
+            tvInfoLabel.setText(current.getLabel());
             ivInfoIcon.setImageResource(current.getIcon());
-        }
-
-        @Override
-        public void onClick(View view) {
-            if (recyclerViewItemClickListener == null) {
-                return;
-            }
-            recyclerViewItemClickListener.onItemClick(view, getAdapterPosition());
         }
     }
 }

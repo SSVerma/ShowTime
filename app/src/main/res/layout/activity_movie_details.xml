@@ -11,6 +11,7 @@
         android:id="@+id/csl_content_holder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
         android:paddingBottom="@dimen/details_content_spacing_bottom">
 
         <!--Backdrop image-->
@@ -114,11 +115,11 @@
 
         <!--Barrier-->
         <android.support.constraint.Barrier
+            android:id="@+id/barrier_poster"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/barrier_poster"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="iv_poster, tv_add_to_favorite_action"/>
+            app:constraint_referenced_ids="iv_poster, tv_add_to_favorite_action" />
 
         <!--Key movie info-->
         <android.support.v7.widget.RecyclerView
@@ -160,6 +161,16 @@
             app:layout_constraintTop_toBottomOf="@+id/ll_synopsis_section_title_holder"
             tools:text="This is dummy synopsis" />
 
+        <!--Genres-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_genre"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_spacing"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_synopsis" />
+
         <!--Videos section title-->
         <include
             android:id="@+id/ll_videos_section_title_holder"
@@ -168,7 +179,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_synopsis" />
+            app:layout_constraintTop_toBottomOf="@+id/rv_genre" />
 
         <!--Video list-->
         <android.support.v7.widget.RecyclerView
@@ -197,10 +208,30 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/content_spacing"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ll_reviews_section_title_holder" />
+
+        <!--Casts section title-->
+        <include
+            android:id="@+id/ll_casts"
+            style="@style/DetailsSectionTitleStyle"
+            layout="@layout/movie_details_section_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cv_reviews" />
+
+        <!--Casts-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_casts"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_spacing"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ll_casts" />
 
     </android.support.constraint.ConstraintLayout>
 

@@ -1,4 +1,4 @@
-package com.ssverma.showtime.ui;
+package com.ssverma.showtime.ui.listing;
 
 import android.arch.paging.PagedListAdapter;
 import android.support.annotation.NonNull;
@@ -13,6 +13,7 @@ import com.squareup.picasso.Picasso;
 import com.ssverma.showtime.R;
 import com.ssverma.showtime.data.NetworkState;
 import com.ssverma.showtime.model.Movie;
+import com.ssverma.showtime.ui.IRecyclerViewItemClickListener;
 import com.ssverma.showtime.utils.AppUtility;
 
 public class MoviesListingAdapter extends PagedListAdapter<Movie, RecyclerView.ViewHolder> {

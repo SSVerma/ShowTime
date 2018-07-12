@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.ssverma.showtime.R;
+import com.ssverma.showtime.ui.listing.MoviesListingActivity;
 
 public class SplashActivity extends AppCompatActivity {
 

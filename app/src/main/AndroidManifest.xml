@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.LightStatusBar">
         <activity
-            android:name=".ui.MoviesListingActivity"
+            android:name=".ui.listing.MoviesListingActivity"
             android:label="@string/app_name" />
         <activity
             android:name=".ui.MovieDetailsActivity"
@@ -23,7 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.ReviewsActivity" />
+        <activity android:name=".ui.review.ReviewsActivity" />
     </application>
 
 </manifest>
