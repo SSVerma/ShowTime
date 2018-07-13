@@ -13,35 +13,29 @@ import com.ssverma.showtime.common.Resource;
 import com.ssverma.showtime.data.Listing;
 import com.ssverma.showtime.data.MoviesRepository;
 import com.ssverma.showtime.data.NetworkState;
-import com.ssverma.showtime.data.SharedPrefHelper;
 import com.ssverma.showtime.model.CastResponse;
 import com.ssverma.showtime.model.Movie;
 import com.ssverma.showtime.model.MovieDetailsResponse;
 import com.ssverma.showtime.model.MovieKeyInfo;
 import com.ssverma.showtime.model.Review;
-import com.ssverma.showtime.model.SortOptions;
 import com.ssverma.showtime.model.VideosResponse;
 import com.ssverma.showtime.utils.AppUtility;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoviesViewModel extends AndroidViewModel {
+public class MovieDetailsViewModel extends AndroidViewModel {
     private final MoviesRepository repository;
-    private final LiveData<NetworkState> networkState;
     private final LiveData<NetworkState> initialLoadState;
-    private final LiveData<NetworkState> initialReviewLoadState;
     private final Application application;
     private final LiveData<Resource<VideosResponse>> videoLiveData;
     private final LiveData<PagedList<Review>> reviewsLiveData;
-    private final LiveData<PagedList<Movie>> movies;
     private final LiveData<Boolean> isMovieFavorite;
     private final LiveData<Resource<MovieDetailsResponse>> movieDetails;
     private final LiveData<Resource<CastResponse>> casts;
     private MutableLiveData<Integer> movieIdLiveData = new MutableLiveData<>();
-    private MutableLiveData<String> pathLiveData = new MutableLiveData<>();
 
-    public MoviesViewModel(final Application application) {
+    public MovieDetailsViewModel(final Application application) {
         super(application);
         this.application = application;
 
@@ -58,37 +52,6 @@ public class MoviesViewModel extends AndroidViewModel {
             @Override
             public LiveData<Boolean> apply(Integer movieId) {
                 return repository.isFavoriteMovie(movieId);
-            }
-        });
-
-        final LiveData<Listing<Movie>> moviesResult = Transformations.map(pathLiveData, new Function<String, Listing<Movie>>() {
-            @Override
-            public Listing<Movie> apply(String path) {
-                if (path.equals(application.getString(R.string.favorite_path))) {
-                    return repository.getFavoriteMovies();
-                }
-                return repository.getMovies(path);
-            }
-        });
-
-        movies = Transformations.switchMap(moviesResult, new Function<Listing<Movie>, LiveData<PagedList<Movie>>>() {
-            @Override
-            public LiveData<PagedList<Movie>> apply(Listing<Movie> input) {
-                return input.getPagedList();
-            }
-        });
-
-        networkState = Transformations.switchMap(moviesResult, new Function<Listing<Movie>, LiveData<NetworkState>>() {
-            @Override
-            public LiveData<NetworkState> apply(Listing<Movie> input) {
-                return input.getNetworkState();
-            }
-        });
-
-        initialLoadState = Transformations.switchMap(moviesResult, new Function<Listing<Movie>, LiveData<NetworkState>>() {
-            @Override
-            public LiveData<NetworkState> apply(Listing<Movie> input) {
-                return input.getInitialLoadState();
             }
         });
 
@@ -113,7 +76,7 @@ public class MoviesViewModel extends AndroidViewModel {
             }
         });
 
-        initialReviewLoadState = Transformations.switchMap(reviewResult, new Function<Listing<Review>, LiveData<NetworkState>>() {
+        initialLoadState = Transformations.switchMap(reviewResult, new Function<Listing<Review>, LiveData<NetworkState>>() {
             @Override
             public LiveData<NetworkState> apply(Listing<Review> input) {
                 return input.getInitialLoadState();
@@ -130,11 +93,6 @@ public class MoviesViewModel extends AndroidViewModel {
 
     public void updateMovieId(int movieId) {
         movieIdLiveData.setValue(movieId);
-    }
-
-    public void updatePath(String path) {
-        this.pathLiveData.setValue(path);
-        SharedPrefHelper.saveSortSelectedPath(application, path);
     }
 
     public LiveData<Resource<VideosResponse>> getVideos() {
@@ -157,58 +115,16 @@ public class MoviesViewModel extends AndroidViewModel {
         repository.deleteMovie(movieId);
     }
 
-    public LiveData<PagedList<Movie>> getMovies() {
-        return movies;
-    }
-
     public LiveData<Resource<MovieDetailsResponse>> getMovieDetails() {
         return movieDetails;
-    }
-
-    public LiveData<NetworkState> getNetworkState() {
-        return networkState;
     }
 
     public LiveData<NetworkState> getInitialLoadState() {
         return initialLoadState;
     }
 
-    public LiveData<NetworkState> getInitialReviewLoadState() {
-        return initialReviewLoadState;
-    }
-
     public LiveData<Resource<CastResponse>> getCasts() {
         return casts;
-    }
-
-    public List<SortOptions> getSortOptions() {
-        String[] sortOptions = {
-                application.getString(R.string.most_popular_label),
-                application.getString(R.string.top_rated_label),
-                application.getString(R.string.favorite_label)
-        };
-
-        String[] sortOptionsPath = {
-                application.getString(R.string.popular_path),
-                application.getString(R.string.top_rated_path),
-                application.getString(R.string.favorite_path)
-        };
-
-        List<SortOptions> resultList = new ArrayList<>();
-
-        for (int i = 0; i < sortOptions.length; i++) {
-            SortOptions sortOption = new SortOptions();
-            sortOption.setSortOptionLabel(sortOptions[i]);
-            sortOption.setSortOptionPath(sortOptionsPath[i]);
-            resultList.add(sortOption);
-        }
-
-        return resultList;
-    }
-
-    public String getLastSelectedSortPath() {
-        String lastSortPath = SharedPrefHelper.getLastSortSelectedPath(application);
-        return lastSortPath == null ? application.getString(R.string.popular_path) : lastSortPath;
     }
 
     public List<MovieKeyInfo> getMovieKeyInfo(MovieDetailsResponse movieDetails) {

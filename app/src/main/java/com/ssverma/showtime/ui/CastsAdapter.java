@@ -8,7 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.ssverma.showtime.R;
 import com.ssverma.showtime.model.Cast;
 import com.ssverma.showtime.utils.AppUtility;
@@ -53,7 +54,9 @@ public class CastsAdapter extends RecyclerView.Adapter<CastsAdapter.ViewHolder> 
 
         void bind(int position) {
             tvCastName.setText(listCasts.get(position).getName());
-            Picasso.get()
+            Glide.with(itemView.getContext())
+                    .setDefaultRequestOptions(RequestOptions.placeholderOf(R.drawable.placeholder_circle))
+                    .applyDefaultRequestOptions(RequestOptions.circleCropTransform())
                     .load(AppUtility.buildCastImageUrl(listCasts.get(position).getProfilePath()))
                     .into(ivCast);
 

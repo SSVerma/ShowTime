@@ -15,9 +15,9 @@
         android:adjustViewBounds="true"
         android:background="@drawable/background_cast"
         android:elevation="2dp"
-        android:padding="4dp"
+        android:padding="8dp"
         android:scaleType="center"
-        android:src="@drawable/placeholder"
+        android:src="@drawable/placeholder_circle"
         tools:targetApi="lollipop" />
 
     <!--Cast name-->

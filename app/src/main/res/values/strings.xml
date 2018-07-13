@@ -34,4 +34,5 @@
     <string name="info_status">Status</string>
     <string name="info_vote">Vote</string>
     <string name="label_casts">Casts</string>
+    <string name="empty_state_message">No movies!</string>
 </resources>

@@ -8,7 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.ssverma.showtime.R;
 import com.ssverma.showtime.model.Video;
 import com.ssverma.showtime.utils.AppUtility;
@@ -20,7 +21,7 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder
     private List<Video> listVideos;
     private IRecyclerViewItemClickListener recyclerViewItemClickListener;
 
-    public VideosAdapter(List<Video> listVideos) {
+    VideosAdapter(List<Video> listVideos) {
         this.listVideos = listVideos;
     }
 
@@ -62,8 +63,10 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder
             Video currentVideo = listVideos.get(position);
             tvLanguage.setText(currentVideo.getLanguage());
             tvSize.setText(String.valueOf(currentVideo.getSize()));
-            Picasso.get().load(AppUtility.buildThumbnailUrl(currentVideo.getVideoId()))
-                    .placeholder(R.drawable.placeholder)
+
+            Glide.with(itemView.getContext())
+                    .setDefaultRequestOptions(RequestOptions.placeholderOf(R.drawable.placeholder))
+                    .load(AppUtility.buildThumbnailUrl(currentVideo.getVideoId()))
                     .into(ivThumbnail);
         }
 

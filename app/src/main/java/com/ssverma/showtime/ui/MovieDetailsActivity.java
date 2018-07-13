@@ -18,11 +18,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.ssverma.showtime.R;
 import com.ssverma.showtime.common.Resource;
 import com.ssverma.showtime.model.Cast;
@@ -37,6 +39,7 @@ import com.ssverma.showtime.model.VideosResponse;
 import com.ssverma.showtime.ui.review.ReviewsActivity;
 import com.ssverma.showtime.ui.review.ReviewsAdapter;
 import com.ssverma.showtime.utils.AppUtility;
+import com.ssverma.showtime.utils.GridItemSpacingDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +47,8 @@ import java.util.List;
 public class MovieDetailsActivity extends AppCompatActivity {
 
     private static final String EXTRA_MOVIE = "extra_movie";
-    private static final String BASE_POSTER_PATH = "http://image.tmdb.org/t/p/w342";
     private static final String BASE_BACKDROP_PATH = "http://image.tmdb.org/t/p/w500";
-    private MoviesViewModel viewModel;
+    private MovieDetailsViewModel viewModel;
     private List<Video> listVideos;
     private TextView tvAddToFavorite;
 
@@ -61,16 +63,28 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        supportPostponeEnterTransition();
         setContentView(R.layout.activity_movie_details);
+        setUpHeaderContents();
         initViews();
         initViewModel();
         setUpToolbar();
-        setUpHeaderContents();
         setUpMovieKeyInfo();
         setUpFavoriteToggle();
         setUpVideosSection();
         setUpReviewsSection();
         setUpCastsSection();
+    }
+
+    private void scheduleStartPostponedTransition(final View sharedElement) {
+        sharedElement.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                sharedElement.getViewTreeObserver().removeOnPreDrawListener(this);
+                supportStartPostponedEnterTransition();
+                return true;
+            }
+        });
     }
 
     private void setUpCastsSection() {
@@ -83,6 +97,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         RecyclerView rvCasts = findViewById(R.id.rv_casts);
         rvCasts.setLayoutManager(new GridLayoutManager(this, 3));
+        rvCasts.addItemDecoration(new GridItemSpacingDecoration(this, 3, 16));
         rvCasts.setNestedScrollingEnabled(false);
 
         final List<Cast> listCasts = new ArrayList<>();
@@ -299,7 +314,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void initViewModel() {
-        viewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(MovieDetailsViewModel.class);
         Movie movie = getIntent().getParcelableExtra(EXTRA_MOVIE);
         viewModel.updateMovieId(movie.getId());
     }
@@ -309,19 +324,19 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         /*Backdrop image*/
         ImageView ivBackdrop = findViewById(R.id.iv_backdrop);
-        Picasso.get()
+        Glide.with(this)
+                .setDefaultRequestOptions(RequestOptions.placeholderOf(R.drawable.placeholder))
                 .load(BASE_BACKDROP_PATH + movie.getBackdropPath())
-                .placeholder(R.drawable.placeholder)
-                .error(R.drawable.placeholder)
                 .into(ivBackdrop);
 
         /*Poster image*/
         ImageView ivPoster = findViewById(R.id.iv_poster);
-        Picasso.get()
-                .load(BASE_POSTER_PATH + movie.getPosterPath())
-                .placeholder(R.drawable.placeholder)
-                .error(R.drawable.placeholder)
+        Glide.with(this)
+                .setDefaultRequestOptions(RequestOptions.placeholderOf(R.drawable.placeholder))
+                .load(AppUtility.buildPosterUrl(movie.getPosterPath()))
                 .into(ivPoster);
+
+        scheduleStartPostponedTransition(ivPoster);
 
         /*Title*/
         TextView tvMovieTitle = findViewById(R.id.tv_movie_title);

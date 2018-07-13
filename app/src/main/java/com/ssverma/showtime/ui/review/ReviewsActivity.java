@@ -20,7 +20,7 @@ import android.widget.ProgressBar;
 import com.ssverma.showtime.R;
 import com.ssverma.showtime.data.NetworkState;
 import com.ssverma.showtime.model.Review;
-import com.ssverma.showtime.ui.MoviesViewModel;
+import com.ssverma.showtime.ui.MovieDetailsViewModel;
 
 public class ReviewsActivity extends AppCompatActivity {
 
@@ -52,7 +52,7 @@ public class ReviewsActivity extends AppCompatActivity {
         final ReviewsAdapter reviewsAdapter = new ReviewsAdapter(true);
         rvReviews.setAdapter(reviewsAdapter);
 
-        MoviesViewModel viewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
+        MovieDetailsViewModel viewModel = ViewModelProviders.of(this).get(MovieDetailsViewModel.class);
 
         int movieId = getIntent().getIntExtra(EXTRA_MOVIE_ID, 0);
 
@@ -64,7 +64,7 @@ public class ReviewsActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.getInitialReviewLoadState().observe(this, new Observer<NetworkState>() {
+        viewModel.getInitialLoadState().observe(this, new Observer<NetworkState>() {
             @Override
             public void onChanged(@Nullable NetworkState networkState) {
                 if (networkState == null || networkState.getStatus() == NetworkState.Status.SUCCESS

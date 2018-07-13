@@ -9,7 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.ssverma.showtime.R;
 import com.ssverma.showtime.data.NetworkState;
 import com.ssverma.showtime.model.Movie;
@@ -136,10 +137,9 @@ public class MoviesListingAdapter extends PagedListAdapter<Movie, RecyclerView.V
                 return;
             }
 
-            Picasso.get()
+            Glide.with(itemView.getContext())
+                    .setDefaultRequestOptions(RequestOptions.placeholderOf(R.drawable.placeholder))
                     .load(AppUtility.buildPosterUrl(currentMovie.getPosterPath()))
-                    .placeholder(R.drawable.placeholder)
-                    .error(R.drawable.placeholder)
                     .into(ivPoster);
         }
     }

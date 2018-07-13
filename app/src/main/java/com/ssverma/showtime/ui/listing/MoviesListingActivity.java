@@ -28,13 +28,12 @@ import com.ssverma.showtime.model.Movie;
 import com.ssverma.showtime.model.SortOptions;
 import com.ssverma.showtime.ui.IRecyclerViewItemClickListener;
 import com.ssverma.showtime.ui.MovieDetailsActivity;
-import com.ssverma.showtime.ui.MoviesViewModel;
 
 import java.util.List;
 
 public class MoviesListingActivity extends AppCompatActivity {
 
-    private MoviesViewModel viewModel;
+    private MoviesListingViewModel viewModel;
     private MoviesListingAdapter moviesAdapter;
 
     public static void launch(Context context) {
@@ -51,7 +50,7 @@ public class MoviesListingActivity extends AppCompatActivity {
     }
 
     private void initViewModel() {
-        viewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(MoviesListingViewModel.class);
     }
 
     private void toggleProgressbarVisibility(boolean shouldShow) {
@@ -84,6 +83,7 @@ public class MoviesListingActivity extends AppCompatActivity {
 
     private void setUpContents() {
         toggleMainRetryAction(false);
+        toggleEmptyState(false);
 
         final RecyclerView rvMovies = findViewById(R.id.rv_movies);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
@@ -97,6 +97,7 @@ public class MoviesListingActivity extends AppCompatActivity {
             public void onItemClick(View clickedView, int position) {
                 MovieDetailsActivity.launch(MoviesListingActivity.this,
                         moviesAdapter.getCurrentList().get(position), clickedView);
+                overridePendingTransition(0, 0);
             }
         });
 
@@ -115,12 +116,17 @@ public class MoviesListingActivity extends AppCompatActivity {
             @Override
             public void onChanged(@Nullable PagedList<Movie> movies) {
                 moviesAdapter.submitList(movies);
+
+                if (movies == null || movies.isEmpty()) {
+                    toggleEmptyState(true);
+                }
             }
         });
 
         viewModel.getInitialLoadState().observe(this, new Observer<NetworkState>() {
             @Override
             public void onChanged(@Nullable NetworkState initialLoadState) {
+                toggleEmptyState(false);
                 if (initialLoadState == null || initialLoadState.getStatus() == null) {
                     toggleProgressbarVisibility(false);
                     toggleMainRetryAction(true);
@@ -148,6 +154,10 @@ public class MoviesListingActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void toggleEmptyState(boolean shouldShow) {
+        findViewById(R.id.tv_empty_state).setVisibility(shouldShow ? View.VISIBLE : View.GONE);
     }
 
     private void setUpToolbar() {
