@@ -8,13 +8,13 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginLeft="@dimen/content_spacing"
+        android:layout_marginStart="@dimen/content_spacing"
+        android:layout_marginTop="@dimen/content_spacing"
         android:alpha="0.87"
         android:text="@string/sort_by"
         android:textColor="@android:color/black"
-        android:textSize="19sp"
+        android:textSize="@dimen/sort_by_label_text_size"
         android:textStyle="bold" />
 
     <!--Sort options-->

@@ -41,4 +41,20 @@ public class AppUtility {
     public static String addDollarSymbol(int value) {
         return "$" + value;
     }
+
+    public static void popupShareDialog(Context context, String shareableContent) {
+        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, shareableContent);
+        if (intent.resolveActivity(context.getPackageManager()) != null) {
+            context.startActivity(Intent.createChooser(intent, "Share with..."));
+        } else {
+            ViewUtils.displayToast(context, "No app to share!");
+        }
+    }
+
+    public static String getVideoShareUrl(String videoId) {
+        return "http://www.youtube.com/watch?v=" + videoId;
+    }
+
 }

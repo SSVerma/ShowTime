@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/info_value_spacing_top"
         android:gravity="center"
-        android:textSize="12sp"
+        android:textSize="@dimen/info_label_text_size"
         tools:text="Info value" />
 
     <!--Info value-->
@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="@color/colorAccent"
-        android:textSize="12sp"
+        android:textSize="@dimen/info_value_text_size"
         android:textStyle="bold"
         tools:text="Info value" />
 

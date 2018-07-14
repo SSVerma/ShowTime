@@ -92,6 +92,9 @@ public class MovieDetailsViewModel extends AndroidViewModel {
     }
 
     public void updateMovieId(int movieId) {
+        if (movieIdLiveData.getValue() != null && movieIdLiveData.getValue() == movieId) {
+            return;
+        }
         movieIdLiveData.setValue(movieId);
     }
 

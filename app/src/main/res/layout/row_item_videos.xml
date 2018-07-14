@@ -4,9 +4,9 @@
     android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/content_spacing"
-    android:layout_marginEnd="8dp"
+    android:layout_marginEnd="@dimen/video_item_right_spacing"
     android:layout_marginLeft="@dimen/content_spacing"
-    android:layout_marginRight="8dp"
+    android:layout_marginRight="@dimen/video_item_right_spacing"
     android:layout_marginStart="@dimen/content_spacing"
     android:layout_marginTop="@dimen/content_spacing">
 
@@ -26,8 +26,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|left"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginLeft="@dimen/language_spacing_left"
+        android:layout_marginStart="@dimen/language_spacing_left"
         tools:text="Hindi" />
 
     <!--Size-->
@@ -36,9 +36,20 @@
         style="@style/VideosMetadataStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_gravity="bottom|center"
         tools:text="720P" />
+
+    <!--Share action-->
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/iv_share_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="@dimen/video_size_right"
+        android:src="@drawable/ic_share"
+        android:tint="@android:color/white" />
 
 </android.support.v7.widget.CardView>

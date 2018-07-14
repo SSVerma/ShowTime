@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.ssverma.showtime.R;
 import com.ssverma.showtime.common.Resource;
+import com.ssverma.showtime.data.SharedPrefHelper;
 import com.ssverma.showtime.model.Cast;
 import com.ssverma.showtime.model.CastResponse;
 import com.ssverma.showtime.model.Genre;
@@ -51,6 +52,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private MovieDetailsViewModel viewModel;
     private List<Video> listVideos;
     private TextView tvAddToFavorite;
+    private boolean shouldAvoidTransition;
 
     public static void launch(Activity activity, Movie movie, View clickedView) {
         Intent intent = new Intent(activity, MovieDetailsActivity.class);
@@ -180,6 +182,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
                     tvAddToFavorite.setBackgroundResource(R.drawable.background_add_to_favorite);
                     tvAddToFavorite.setTextColor(getResources().getColor(android.R.color.black));
                     tvAddToFavorite.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_favorite_border, 0);
+                    shouldAvoidTransition = true;
                     return;
                 }
 
@@ -187,6 +190,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 tvAddToFavorite.setBackgroundResource(R.drawable.background_favorite);
                 tvAddToFavorite.setTextColor(getResources().getColor(android.R.color.white));
                 tvAddToFavorite.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_favorite, 0);
+                shouldAvoidTransition = false;
             }
         });
 
@@ -283,7 +287,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
         videosAdapter.setRecyclerViewItemClickListener(new IRecyclerViewItemClickListener() {
             @Override
             public void onItemClick(View clickedView, int position) {
-                AppUtility.launchYoutube(MovieDetailsActivity.this, listVideos.get(position).getVideoId());
+                switch (clickedView.getId()) {
+                    case R.id.iv_share_icon:
+                        AppUtility.popupShareDialog(MovieDetailsActivity.this, AppUtility.getVideoShareUrl(listVideos.get(position).getVideoId()));
+                        break;
+
+                    default:
+                        AppUtility.launchYoutube(MovieDetailsActivity.this, listVideos.get(position).getVideoId());
+                }
             }
         });
 
@@ -363,6 +374,16 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.empty_text);
+    }
+
+    @Override
+    public void onBackPressed() {
+        String favoritePath = getString(R.string.favorite_path);
+        if (shouldAvoidTransition && favoritePath.equals(SharedPrefHelper.getLastSortSelectedPath(this))) {
+            finish();
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override

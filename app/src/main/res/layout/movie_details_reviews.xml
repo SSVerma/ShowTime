@@ -24,10 +24,10 @@
             android:clickable="true"
             android:focusable="true"
             android:gravity="right"
-            android:padding="16dp"
+            android:padding="@dimen/content_spacing"
             android:text="@string/label_view_all"
             android:textColor="@color/colorAccent"
-            android:textSize="16sp"
+            android:textSize="@dimen/view_all_text_size"
             android:textStyle="bold" />
 
     </LinearLayout>

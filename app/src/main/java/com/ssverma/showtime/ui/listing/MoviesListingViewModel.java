@@ -67,6 +67,9 @@ public class MoviesListingViewModel extends AndroidViewModel {
     }
 
     public void updatePath(String path) {
+        if (pathLiveData.getValue() != null && pathLiveData.getValue().equals(path)) {
+            return;
+        }
         this.pathLiveData.setValue(path);
         SharedPrefHelper.saveSortSelectedPath(application, path);
     }

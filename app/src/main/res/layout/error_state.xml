@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:alpha="0.87"
         android:background="@drawable/background_loading_item"
-        android:padding="12dp"
+        android:padding="@dimen/error_state_message_padding"
         android:text="@string/error_message"
         android:textColor="@android:color/black" />
 

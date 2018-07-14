@@ -50,13 +50,17 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder
         private ImageView ivThumbnail;
         private TextView tvLanguage;
         private TextView tvSize;
+        private ImageView ivShare;
 
         ViewHolder(View itemView) {
             super(itemView);
             ivThumbnail = itemView.findViewById(R.id.iv_thumbnail);
             tvLanguage = itemView.findViewById(R.id.tv_language);
             tvSize = itemView.findViewById(R.id.tv_size);
+            ivShare = itemView.findViewById(R.id.iv_share_icon);
+
             itemView.setOnClickListener(this);
+            ivShare.setOnClickListener(this);
         }
 
         void bind(int position) {

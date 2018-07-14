@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/background_loading_item"
         android:orientation="horizontal"
-        android:padding="8dp"
+        android:padding="@dimen/loading_item_padding"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">

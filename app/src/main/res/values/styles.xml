@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -8,9 +8,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppTheme.NoActionBar" parent="AppTheme">
+    <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar.TransparentStatusBar">
+        <item name="android:windowTranslucentStatus" tools:targetApi="kitkat">true</item>
     </style>
 
     <style name="AppTheme.LightStatusBar" parent="AppTheme.NoActionBar"></style>
@@ -47,6 +51,36 @@
         <item name="android:textSize">13sp</item>
         <item name="android:alpha">0.54</item>
         <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="FavoriteActionStyle">
+        <item name="android:paddingBottom">@dimen/favorite_action_padding_bottom</item>
+        <item name="android:paddingLeft">@dimen/favorite_action_padding_left</item>
+        <item name="android:paddingRight">@dimen/favorite_action_padding_right</item>
+        <item name="android:paddingTop">@dimen/favorite_action_padding_top</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:layout_marginLeft">@dimen/content_spacing</item>
+        <item name="android:layout_marginRight">@dimen/content_spacing</item>
+        <item name="android:layout_marginTop">@dimen/favorite_action_spacing_top</item>
+        <item name="android:textSize">@dimen/favorite_action_text_size</item>
+        <item name="android:drawablePadding">@dimen/favorite_action_drawable_padding</item>
+        <item name="android:background">@drawable/background_rating</item>
+    </style>
+
+    <style name="TagLineStyle">
+        <item name="android:layout_marginLeft">@dimen/content_spacing</item>
+        <item name="android:layout_marginRight">@dimen/content_spacing</item>
+        <item name="android:layout_marginTop">@dimen/tagline_spacing_top</item>
+        <item name="android:alpha">0.70</item>
+        <item name="android:textSize">@dimen/tagline_text_size</item>
+    </style>
+
+    <style name="MovieTitleStyle">
+        <item name="android:layout_marginLeft">@dimen/content_spacing</item>
+        <item name="android:layout_marginRight">@dimen/content_spacing</item>
+        <item name="android:layout_marginTop">@dimen/movie_title_top_spacing</item>
+        <item name="android:textSize">@dimen/movie_title_text_size</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>
